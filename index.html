@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SpokeClone</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--bg4:#1e2d42;
+  --accent:#00e5ff;--accent2:#0097a7;--success:#00e676;--warn:#ffab40;--danger:#ff5252;
+  --text:#f0f4ff;--text2:#8899aa;--text3:#445566;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+input,button,select,textarea{font-family:var(--font);}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ── LOGIN ── */
+#screen-login{background:linear-gradient(160deg,#0a0e1a 60%,#0d2137);}
+.login-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;}
+.login-brand{text-align:center;margin-bottom:48px;}
+.login-icon{font-size:52px;display:block;margin-bottom:12px;}
+.login-title{font-size:32px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;}
+.login-sub{color:var(--text2);font-size:14px;margin-top:4px;}
+.role-row{display:flex;background:var(--bg3);border-radius:var(--radius);padding:4px;margin-bottom:24px;gap:4px;}
+.role-btn{flex:1;padding:11px;text-align:center;background:transparent;border:none;color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;transition:all 0.2s;}
+.role-btn.active{background:var(--accent);color:#0a0e1a;}
+.field{position:relative;margin-bottom:14px;}
+.field input{width:100%;background:var(--bg3);border:1.5px solid var(--bg4);border-radius:var(--radius);padding:15px 16px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--accent);}
+.btn-main{width:100%;background:var(--accent);color:#0a0e1a;border:none;border-radius:var(--radius);padding:17px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:0.3px;transition:opacity 0.15s;}
+.btn-main:active{opacity:0.82;}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bg4);position:sticky;top:0;z-index:1000;}
+.hdr-title{font-size:17px;font-weight:700;color:var(--accent);}
+.hdr-btn{background:transparent;border:none;color:var(--accent);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:8px;}
+.hdr-btn:active{background:var(--bg3);}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bg4);}
+.tab{flex:1;padding:13px 8px;text-align:center;background:transparent;border:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── BOTTOM BAR ── */
+.btm{background:var(--bg2);border-top:1px solid var(--bg4);padding:12px 16px;display:flex;gap:10px;position:sticky;bottom:0;z-index:999;}
+.btn-sec{flex:1;background:var(--bg3);border:none;color:var(--accent);border-radius:var(--radius);padding:14px;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-sm{background:var(--accent);border:none;color:#0a0e1a;border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-danger{background:var(--danger);border:none;color:#fff;border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;cursor:pointer;}
+
+/* ── LIST / CARDS ── */
+.list{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;}
+.card{background:var(--bg2);border-radius:var(--radius);padding:16px;margin-bottom:12px;border-left:4px solid var(--accent);transition:transform 0.1s;}
+.card:active{transform:scale(0.99);}
+.card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.card-title{font-size:16px;font-weight:700;}
+.card-date{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.card-info{font-size:13px;color:var(--text2);margin-bottom:3px;}
+.card-actions{display:flex;gap:8px;margin-top:12px;}
+.badge{display:inline-block;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;}
+.badge-green{background:rgba(0,230,118,0.15);color:var(--success);}
+.badge-yellow{background:rgba(255,171,64,0.15);color:var(--warn);}
+.badge-red{background:rgba(255,82,82,0.15);color:var(--danger);}
+
+/* ── FORM ── */
+.form-wrap{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;}
+.fsec{background:var(--bg2);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.sec-title{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px;}
+.inp{width:100%;background:var(--bg3);border:1.5px solid var(--bg4);border-radius:var(--radius-sm);padding:13px 14px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;transition:border-color 0.2s;}
+.inp:focus{border-color:var(--accent);}
+.inp:last-child{margin-bottom:0;}
+.inp-row{display:flex;gap:8px;}
+.inp-row .inp{flex:1;}
+
+/* ── AUTOCOMPLETE ── */
+.ac-wrap{position:relative;margin-bottom:10px;}
+.ac-wrap .inp{margin-bottom:0;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1.5px solid var(--accent);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.ac-item{padding:11px 14px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--bg3);}
+.ac-item:hover,.ac-item:active{background:var(--bg3);}
+.ac-item:last-child{border-bottom:none;}
+.ac-loading{padding:10px 14px;color:var(--text2);font-size:13px;}
+
+/* ── COLOR PICKER ── */
+.color-grid{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0;}
+.cdot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;}
+.cdot.sel{border-color:#fff;transform:scale(1.15);}
+
+/* ── STOP ITEMS ── */
+.stop-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:var(--radius);padding:12px;margin-bottom:8px;border-left:3px solid transparent;}
+.snum{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#0a0e1a;margin-top:2px;}
+.sinfo{flex:1;min-width:0;}
+.saddr{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sclient{font-size:12px;color:var(--text2);margin-top:2px;}
+.stime{font-size:11px;color:var(--accent);font-family:var(--mono);margin-top:2px;}
+.sphotos{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.sphoto{width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--bg4);}
+.btn-remove{background:transparent;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+
+/* ── MAP BUILDER ── */
+#builder-map{height:270px;width:100%;border-radius:var(--radius);margin-bottom:14px;z-index:1;}
+
+/* ── NAV MAP ── */
+#nav-map{flex:1;min-height:180px;z-index:1;}
+.map-panel{background:var(--bg);border-top-left-radius:24px;border-top-right-radius:24px;padding:16px 16px 20px;flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);}
+.map-handle{width:36px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 14px;}
+.map-ctr{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.map-name{font-size:20px;font-weight:700;margin-bottom:3px;}
+.map-addr{color:var(--text2);font-size:13px;margin-bottom:4px;}
+.map-time{color:var(--warn);font-size:12px;font-family:var(--mono);margin-bottom:14px;}
+.nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.nav-btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.btn-nav{background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--radius);padding:12px 8px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
+.btn-delivered{background:var(--success);border-color:var(--success);color:#0a0e1a;}
+.btn-nodelivered{background:var(--danger);border-color:var(--danger);color:#fff;}
+.prog-bar{background:var(--bg3);border-radius:3px;height:5px;overflow:hidden;margin:10px 0 4px;}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.prog-txt{font-size:11px;color:var(--text2);text-align:right;font-family:var(--mono);}
+
+/* ── QR SCANNER ── */
+.qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;}
+.qr-overlay.active{display:flex;}
+.qr-box{width:260px;height:260px;border:3px solid var(--accent);border-radius:16px;position:relative;overflow:hidden;}
+.qr-box video{width:100%;height:100%;object-fit:cover;}
+.qr-corners::before,.qr-corners::after{content:'';position:absolute;width:30px;height:30px;border-color:var(--accent);border-style:solid;}
+.qr-corners::before{top:0;left:0;border-width:3px 0 0 3px;}
+.qr-corners::after{bottom:0;right:0;border-width:0 3px 3px 0;}
+.qr-label{color:var(--text);font-size:15px;margin-top:20px;text-align:center;}
+.qr-close{margin-top:20px;background:transparent;border:1.5px solid var(--text2);color:var(--text2);border-radius:var(--radius);padding:12px 32px;font-size:15px;cursor:pointer;}
+
+/* ── PHOTO MODAL ── */
+.photo-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9998;flex-direction:column;align-items:center;justify-content:center;}
+.photo-modal.active{display:flex;}
+.photo-modal video{width:100%;max-width:400px;border-radius:var(--radius);}
+.photo-modal canvas{display:none;}
+.photo-modal-btns{display:flex;gap:12px;margin-top:16px;}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--bg2);border-radius:var(--radius);padding:16px;text-align:center;}
+.stat-num{font-size:28px;font-weight:700;color:var(--accent);}
+.stat-lbl{font-size:12px;color:var(--text2);margin-top:4px;}
+
+/* ── PROGRESS BAR ── */
+.route-prog{margin:8px 0 4px;}
+.route-prog-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.route-prog-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:52px;margin-bottom:14px;}
+.empty-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.empty-sub{color:var(--text2);font-size:13px;}
+
+/* ── DELIVERY STATUS ── */
+.stop-status{display:inline-block;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-top:4px;}
+.status-delivered{background:rgba(0,230,118,0.15);color:var(--success);}
+.status-failed{background:rgba(255,82,82,0.15);color:var(--danger);}
+.status-pending{background:rgba(136,153,170,0.15);color:var(--text2);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN ════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <span class="login-icon">🚚</span>
+      <div class="login-title">SpokeClone</div>
+      <div class="login-sub">Gestión inteligente de rutas</div>
+    </div>
+    <div class="role-row">
+      <button class="role-btn active" id="role-driver" onclick="setRole('driver')">🏍️ Conductor</button>
+      <button class="role-btn" id="role-dispatcher" onclick="setRole('dispatcher')">🖥️ Dispatcher</button>
+    </div>
+    <div class="field"><input id="login-email" type="email" placeholder="Email"></div>
+    <div class="field"><input id="login-pass" type="password" placeholder="Contraseña"></div>
+    <button class="btn-main" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="hdr">
+    <span class="hdr-title">🚚 Mis Rutas</span>
+    <button class="hdr-btn" onclick="doLogout()" title="Salir">⏏</button>
+  </div>
+  <div class="list" id="routes-list"></div>
+  <div class="btm">
+    <button class="btn-main" style="flex:2" onclick="goBuilder()">+ Nueva Ruta</button>
+    <button class="btn-sec" onclick="goHistory()">📋</button>
+  </div>
+</div>
+
+<!-- ════════════════ BUILDER ════════════════ -->
+<div class="screen" id="screen-route">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="goHome()">←</button>
+    <span class="hdr-title">Planificar Ruta</span>
+    <button class="hdr-btn" onclick="openQR()" title="Escanear QR">📷</button>
+  </div>
+  <div class="form-wrap">
+    <input class="inp" id="route-name" placeholder="Nombre de la ruta (ej: Zona Norte - Mañana)">
+
+    <!-- COLOR -->
+    <div class="fsec">
+      <div class="sec-title">🎨 Color de ruta</div>
+      <div class="color-grid" id="color-picker"></div>
+    </div>
+
+    <!-- MAPA -->
+    <div id="builder-map"></div>
+
+    <!-- AGREGAR PARADA -->
+    <div class="fsec">
+      <div class="sec-title">➕ Agregar parada</div>
+      <div class="ac-wrap">
+        <input class="inp" id="stop-addr" placeholder="Dirección *" autocomplete="off"
+          oninput="onAddrInput(this.value)" onblur="setTimeout(closeAC,200)">
+        <div class="ac-list" id="ac-list" style="display:none"></div>
+      </div>
+      <input class="inp" id="stop-client" placeholder="Nombre del cliente / destinatario">
+      <input class="inp" id="stop-phone" placeholder="Teléfono (para notificación)" type="tel">
+      <input class="inp" id="stop-notes" placeholder="Notas (ej: dejar en portería)">
+      <div class="inp-row">
+        <input class="inp" id="stop-from" type="time" title="Desde">
+        <input class="inp" id="stop-to" type="time" title="Hasta">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+        <span style="font-size:13px;color:var(--text2)">Color parada:</span>
+        <div class="color-grid" id="stop-color-picker" style="flex:1"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-main" style="flex:1" onclick="addStop()">Agregar</button>
+        <button class="btn-sec" onclick="openPhotoForStop()" title="Foto del paquete">📸</button>
+        <button class="btn-sec" onclick="openQR()" title="Escanear QR MercadoLibre">📷</button>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="sec-title" style="margin:0">📍 Paradas (<span id="stop-count">0</span>)</div>
+    </div>
+    <div id="stops-list"></div>
+  </div>
+  <div class="btm">
+    <button class="btn-main" onclick="saveRoute()">🚀 Optimizar y Guardar Ruta</button>
+  </div>
+</div>
+
+<!-- ════════════════ NAVIGATION MAP ════════════════ -->
+<div class="screen" id="screen-map">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="goHome()">←</button>
+    <span class="hdr-title" id="nav-route-name">Navegación</span>
+    <button class="hdr-btn" onclick="toggleStopList()" id="stoplist-btn">☰</button>
+  </div>
+  <div id="nav-map"></div>
+
+  <!-- STOP LIST PANEL -->
+  <div id="stoplist-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:2000;overflow-y:auto;padding:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <span style="font-size:17px;font-weight:700;color:var(--accent)">Todas las paradas</span>
+      <button onclick="toggleStopList()" style="background:transparent;border:none;color:var(--text);font-size:22px;cursor:pointer;">✕</button>
+    </div>
+    <div id="stoplist-content"></div>
+  </div>
+
+  <div class="map-panel">
+    <div class="map-handle"></div>
+    <div class="map-ctr" id="map-counter">PARADA 1 DE 1</div>
+    <div class="map-name" id="map-client">-</div>
+    <div class="map-addr" id="map-addr">-</div>
+    <div class="map-time" id="map-time"></div>
+    <div class="nav-btns" style="margin-bottom:8px;">
+      <button class="btn-nav" onclick="openWaze()">🔵 Waze</button>
+      <button class="btn-nav" onclick="openMaps()">🗺️ Google Maps</button>
+    </div>
+    <div class="nav-btns3">
+      <button class="btn-nav btn-delivered" onclick="markStop('delivered')">✅ Entregado</button>
+      <button class="btn-nav btn-nodelivered" onclick="markStop('failed')">❌ No entregado</button>
+      <button class="btn-nav" onclick="openPhotoNav()" style="font-size:18px;">📸</button>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="map-progress" style="width:0%"></div></div>
+    <div class="prog-txt" id="map-progress-text">0 entregadas</div>
+  </div>
+</div>
+
+<!-- ════════════════ HISTORY ════════════════ -->
+<div class="screen" id="screen-history">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="goHome()">←</button>
+    <span class="hdr-title">Historial</span>
+    <span></span>
+  </div>
+  <div class="list" id="history-list"></div>
+</div>
+
+<!-- ════════════════ DISPATCHER ════════════════ -->
+<div class="screen" id="screen-dispatcher">
+  <div class="hdr">
+    <span class="hdr-title">🖥️ Panel Dispatcher</span>
+    <button class="hdr-btn" onclick="doLogout()">⏏</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-drivers" onclick="switchTab('drivers')">Conductores</button>
+    <button class="tab" id="tab-droutes" onclick="switchTab('droutes')">Rutas</button>
+    <button class="tab" id="tab-stats" onclick="switchTab('stats')">Estadísticas</button>
+  </div>
+  <div class="list" id="dispatcher-content" style="padding-bottom:90px;"></div>
+  <div class="btm" id="dispatcher-bar">
+    <input class="inp" id="driver-name" placeholder="Nombre del conductor" style="flex:1;margin:0">
+    <button class="btn-sm" onclick="addDriver()">+ Agregar</button>
+  </div>
+</div>
+
+<!-- ════════════════ QR SCANNER ════════════════ -->
+<div class="qr-overlay" id="qr-overlay">
+  <div class="qr-box">
+    <video id="qr-video" autoplay playsinline muted></video>
+    <div class="qr-corners"></div>
+  </div>
+  <div class="qr-label">Apuntá al código QR de MercadoLibre</div>
+  <button class="qr-close" onclick="closeQR()">Cancelar</button>
+</div>
+
+<!-- ════════════════ PHOTO MODAL ════════════════ -->
+<div class="photo-modal" id="photo-modal">
+  <video id="photo-video" autoplay playsinline muted style="width:100%;max-width:400px;border-radius:var(--radius);"></video>
+  <canvas id="photo-canvas" style="display:none;"></canvas>
+  <div class="photo-modal-btns">
+    <button class="btn-main" onclick="takePhoto()">📸 Sacar foto</button>
+    <button class="btn-sec" onclick="closePhoto()">Cancelar</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE & STORAGE
+// ══════════════════════════════════════════════════════════════
+const COLORS = ['#00e5ff','#ff5252','#00e676','#ffab40','#ff80ab','#e040fb','#40c4ff','#ffd740','#69f0ae','#ff6e40'];
+let S = {
+  role: 'driver',
+  routeColor: COLORS[0],
+  stopColor: null,
+  pendingStops: [],
+  pendingPhoto: null,
+  currentRoute: null,
+  currentIdx: 0,
+  dispTab: 'drivers',
+  _lat: null, _lng: null,
+  photoTarget: null // 'stop' or 'nav'
+};
+let builderMap=null, navMap=null;
+let bMarkers=[], bPoly=null, nMarkers=[], nPoly=null;
+let acTimer=null, qrStream=null, photoStream=null, qrInterval=null;
+
+function db(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]} }
+function save(k,v){ localStorage.setItem(k,JSON.stringify(v)) }
+
+// ══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ show('screen-home'); renderRoutes(); }
+function goHistory(){ show('screen-history'); renderHistory(); }
+function goBuilder(){
+  S.pendingStops=[];S.pendingPhoto=null;S.routeColor=COLORS[0];S.stopColor=null;
+  S._lat=null;S._lng=null;
+  show('screen-route');
+  document.getElementById('route-name').value='';
+  document.getElementById('stop-addr').value='';
+  document.getElementById('stop-client').value='';
+  document.getElementById('stop-phone').value='';
+  document.getElementById('stop-notes').value='';
+  document.getElementById('stop-from').value='';
+  document.getElementById('stop-to').value='';
+  renderColorPicker();
+  renderStopColorPicker();
+  renderStops();
+  setTimeout(initBuilderMap,150);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════════
+function setRole(r){
+  S.role=r;
+  document.getElementById('role-driver').classList.toggle('active',r==='driver');
+  document.getElementById('role-dispatcher').classList.toggle('active',r==='dispatcher');
+}
+function doLogin(){
+  const e=document.getElementById('login-email').value;
+  const p=document.getElementById('login-pass').value;
+  if(!e||!p){alert('Completá todos los campos');return;}
+  if(S.role==='dispatcher'){show('screen-dispatcher');renderDispatcher();}
+  else{show('screen-home');renderRoutes();}
+}
+function doLogout(){show('screen-login');}
+
+// ══════════════════════════════════════════════════════════════
+// COLOR PICKERS
+// ══════════════════════════════════════════════════════════════
+function renderColorPicker(){
+  document.getElementById('color-picker').innerHTML=COLORS.map(c=>
+    `<div class="cdot${c===S.routeColor?' sel':''}" style="background:${c}" onclick="S.routeColor='${c}';renderColorPicker();renderStops();updateBuilderMap()"></div>`
+  ).join('');
+}
+function renderStopColorPicker(){
+  const cur = S.stopColor||S.routeColor;
+  document.getElementById('stop-color-picker').innerHTML=COLORS.map(c=>
+    `<div class="cdot${c===cur?' sel':''}" style="background:${c};width:22px;height:22px" onclick="S.stopColor='${c}';renderStopColorPicker()"></div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// BUILDER MAP
+// ══════════════════════════════════════════════════════════════
+function initBuilderMap(){
+  if(builderMap){builderMap.remove();builderMap=null;bMarkers=[];bPoly=null;}
+  builderMap=L.map('builder-map').setView([-34.6037,-58.3816],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(builderMap);
+}
+function updateBuilderMap(){
+  if(!builderMap)return;
+  bMarkers.forEach(m=>builderMap.removeLayer(m));bMarkers=[];
+  if(bPoly){builderMap.removeLayer(bPoly);bPoly=null;}
+  const stops=S.pendingStops.filter(s=>s.lat&&s.lng);
+  if(!stops.length)return;
+  stops.forEach((s,i)=>{
+    const c=s.color||S.routeColor;
+    const icon=L.divIcon({className:'',html:`<div style="background:${c};color:#0a0e1a;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)">${i+1}</div>`,iconSize:[30,30],iconAnchor:[15,15]});
+    const m=L.marker([s.lat,s.lng],{icon}).addTo(builderMap);
+    m.bindPopup(`<b>${s.client}</b><br>${s.address}${s.timeFrom?'<br>⏰ '+s.timeFrom+' - '+s.timeTo:''}`);
+    bMarkers.push(m);
+  });
+  if(stops.length>1){
+    bPoly=L.polyline(stops.map(s=>[s.lat,s.lng]),{color:S.routeColor,weight:3,opacity:0.7,dashArray:'6 4'}).addTo(builderMap);
+  }
+  builderMap.fitBounds(L.featureGroup(bMarkers).getBounds().pad(0.2));
+}
+
+// ══════════════════════════════════════════════════════════════
+// AUTOCOMPLETE
+// ══════════════════════════════════════════════════════════════
+function onAddrInput(v){
+  clearTimeout(acTimer);
+  const el=document.getElementById('ac-list');
+  if(v.length<3){el.style.display='none';return;}
+  el.innerHTML='<div class="ac-loading">🔍 Buscando...</div>';
+  el.style.display='block';
+  acTimer=setTimeout(()=>fetchAC(v),420);
+}
+async function fetchAC(q){
+  const el=document.getElementById('ac-list');
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1`,{headers:{'Accept-Language':'es','User-Agent':'SpokeClone/1.0'}});
+    const data=await r.json();
+    if(!data.length){el.innerHTML='<div class="ac-loading">Sin resultados</div>';return;}
+    el.innerHTML=data.map(d=>`<div class="ac-item" onmousedown="selectAC('${d.display_name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${d.lat},${d.lon})">📍 ${d.display_name}</div>`).join('');
+  }catch(e){el.style.display='none';}
+}
+function selectAC(name,lat,lon){
+  document.getElementById('stop-addr').value=name;
+  document.getElementById('ac-list').style.display='none';
+  S._lat=parseFloat(lat);S._lng=parseFloat(lon);
+}
+function closeAC(){document.getElementById('ac-list').style.display='none';}
+
+// ══════════════════════════════════════════════════════════════
+// STOPS
+// ══════════════════════════════════════════════════════════════
+function addStop(){
+  const addr=document.getElementById('stop-addr').value.trim();
+  if(!addr){alert('Ingresá la dirección');return;}
+  const stop={
+    id:Date.now().toString(),
+    address:addr,
+    client:document.getElementById('stop-client').value.trim()||'Sin nombre',
+    phone:document.getElementById('stop-phone').value.trim(),
+    notes:document.getElementById('stop-notes').value.trim(),
+    timeFrom:document.getElementById('stop-from').value,
+    timeTo:document.getElementById('stop-to').value,
+    color:S.stopColor||S.routeColor,
+    lat:S._lat,lng:S._lng,
+    status:'pending',
+    photo:S.pendingPhoto||null,
+    order:S.pendingStops.length+1
+  };
+  S.pendingStops.push(stop);
+  S._lat=null;S._lng=null;S.pendingPhoto=null;
+  document.getElementById('stop-addr').value='';
+  document.getElementById('stop-client').value='';
+  document.getElementById('stop-phone').value='';
+  document.getElementById('stop-notes').value='';
+  document.getElementById('stop-from').value='';
+  document.getElementById('stop-to').value='';
+  S.stopColor=null;
+  renderStops();renderStopColorPicker();updateBuilderMap();
+}
+
+function removeStop(i){
+  S.pendingStops.splice(i,1);
+  S.pendingStops.forEach((s,idx)=>s.order=idx+1);
+  renderStops();updateBuilderMap();
+}
+
+function renderStops(){
+  document.getElementById('stop-count').textContent=S.pendingStops.length;
+  document.getElementById('stops-list').innerHTML=S.pendingStops.map((s,i)=>`
+    <div class="stop-item" style="border-left-color:${s.color||S.routeColor}">
+      <div class="snum" style="background:${s.color||S.routeColor}">${i+1}</div>
+      <div class="sinfo">
+        <div class="saddr">${s.address.length>48?s.address.slice(0,48)+'…':s.address}</div>
+        <div class="sclient">👤 ${s.client}${s.phone?' · 📱 '+s.phone:''}</div>
+        ${s.timeFrom?`<div class="stime">⏰ ${s.timeFrom} – ${s.timeTo||'?'}</div>`:''}
+        ${s.notes?`<div class="sclient">📝 ${s.notes}</div>`:''}
+        ${s.photo?`<div class="sphotos"><img class="sphoto" src="${s.photo}"></div>`:''}
+      </div>
+      <button class="btn-remove" onclick="removeStop(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SAVE ROUTE (with time-window optimization)
+// ══════════════════════════════════════════════════════════════
+function saveRoute(){
+  const name=document.getElementById('route-name').value.trim();
+  if(!name){alert('Poné un nombre a la ruta');return;}
+  if(!S.pendingStops.length){alert('Agregá al menos una parada');return;}
+  const optimized=optimizeWithTimeWindows(S.pendingStops);
+  const route={
+    id:Date.now().toString(),name,
+    color:S.routeColor,
+    stops:optimized,
+    date:new Date().toLocaleDateString('es-AR'),
+    status:'pending',
+    createdAt:Date.now()
+  };
+  const routes=db('routes');routes.unshift(route);save('routes',routes);
+  const hist=db('history');hist.unshift({...route});save('history',hist);
+  alert('✅ Ruta guardada y optimizada');
+  goHome();
+}
+
+function optimizeWithTimeWindows(stops){
+  // Separate stops with and without time windows
+  const withTime=stops.filter(s=>s.timeFrom).sort((a,b)=>a.timeFrom.localeCompare(b.timeFrom));
+  const noTime=stops.filter(s=>!s.timeFrom);
+  // Nearest neighbor for no-time stops
+  const ordered=optimizeNN([...noTime]);
+  // Merge: insert time-window stops at correct positions
+  const result=[...withTime,...ordered];
+  return result.map((s,i)=>({...s,order:i+1}));
+}
+
+function optimizeNN(stops){
+  if(stops.length<=1)return stops;
+  const rem=[...stops];
+  const ord=[rem.shift()];
+  while(rem.length){
+    const last=ord[ord.length-1];
+    let minD=Infinity,ni=0;
+    rem.forEach((s,i)=>{
+      if(s.lat&&s.lng&&last.lat&&last.lng){
+        const d=Math.hypot(s.lat-last.lat,s.lng-last.lng);
+        if(d<minD){minD=d;ni=i;}
+      }
+    });
+    ord.push(rem.splice(ni,1)[0]);
+  }
+  return ord;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HOME ROUTES
+// ══════════════════════════════════════════════════════════════
+function renderRoutes(){
+  const routes=db('routes');
+  const el=document.getElementById('routes-list');
+  if(!routes.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas todavía</div><div class="empty-sub">Creá tu primera ruta abajo</div></div>`;
+    return;
+  }
+  el.innerHTML=routes.map((r,i)=>{
+    const del=r.stops.filter(s=>s.status==='delivered').length;
+    const fail=r.stops.filter(s=>s.status==='failed').length;
+    const tot=r.stops.length;
+    const pct=tot>0?Math.round((del/tot)*100):0;
+    return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
+      <div class="card-hdr">
+        <div class="card-title">${r.name}</div>
+        <div class="card-date">${r.date}</div>
+      </div>
+      <div class="card-info">📍 ${tot} paradas · ✅ ${del} · ❌ ${fail}</div>
+      <div class="route-prog">
+        <div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-sm" style="flex:1" onclick="startRoute(${i})">▶ Iniciar</button>
+        <button class="btn-danger" onclick="deleteRoute(${i})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteRoute(i){
+  if(!confirm('¿Eliminar esta ruta?'))return;
+  const routes=db('routes');routes.splice(i,1);save('routes',routes);renderRoutes();
+}
+
+// ══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════
+function startRoute(i){
+  const routes=db('routes');
+  S.currentRoute=routes[i];
+  S.currentIdx=S.currentRoute.stops.findIndex(s=>s.status==='pending')||0;
+  if(S.currentIdx===-1)S.currentIdx=0;
+  show('screen-map');
+  document.getElementById('nav-route-name').textContent=S.currentRoute.name;
+  setTimeout(initNavMap,150);
+  updateMapPanel();
+}
+
+function initNavMap(){
+  if(navMap){navMap.remove();navMap=null;nMarkers=[];nPoly=null;}
+  const r=S.currentRoute;
+  const color=r.color||'#00e5ff';
+  const valid=r.stops.filter(s=>s.lat&&s.lng);
+  const center=valid.length?[valid[0].lat,valid[0].lng]:[-34.6037,-58.3816];
+  navMap=L.map('nav-map').setView(center,14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(navMap);
+  r.stops.forEach((s,i)=>{
+    if(!s.lat||!s.lng)return;
+    const isDel=s.status==='delivered',isFail=s.status==='failed',isCur=i===S.currentIdx;
+    const bg=isDel?'#00e676':isFail?'#ff5252':isCur?color:'#445566';
+    const sz=isCur?36:26;
+    const icon=L.divIcon({className:'',html:`<div style="background:${bg};color:${isCur?'#0a0e1a':'#fff'};width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.6)">${isDel?'✓':isFail?'✕':i+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+    const m=L.marker([s.lat,s.lng],{icon}).addTo(navMap);
+    m.bindPopup(`<b>${s.client}</b><br>${s.address}${s.timeFrom?'<br>⏰ '+s.timeFrom+' – '+s.timeTo:''}`);
+    nMarkers.push(m);
+  });
+  if(valid.length>1){
+    nPoly=L.polyline(valid.map(s=>[s.lat,s.lng]),{color,weight:4,opacity:0.65,dashArray:'8 5'}).addTo(navMap);
+  }
+  const cur=r.stops[S.currentIdx];
+  if(cur&&cur.lat)navMap.setView([cur.lat,cur.lng],15);
+}
+
+function updateMapPanel(){
+  const r=S.currentRoute;if(!r)return;
+  const tot=r.stops.length;
+  const del=r.stops.filter(s=>s.status==='delivered').length;
+  const fail=r.stops.filter(s=>s.status==='failed').length;
+  const s=r.stops[S.currentIdx];
+  document.getElementById('map-counter').textContent=`PARADA ${S.currentIdx+1} DE ${tot}`;
+  document.getElementById('map-client').textContent=s?s.client:'¡Ruta completada!';
+  document.getElementById('map-addr').textContent=s?'📍 '+s.address:'';
+  document.getElementById('map-time').textContent=s&&s.timeFrom?`⏰ ${s.timeFrom} – ${s.timeTo||'?'}`:'';
+  const pct=tot>0?Math.round((del/tot)*100):0;
+  document.getElementById('map-progress').style.width=pct+'%';
+  document.getElementById('map-progress').style.background=r.color||'#00e5ff';
+  document.getElementById('map-progress-text').textContent=`${del} entregadas · ${fail} fallidas · ${tot-del-fail} pendientes`;
+}
+
+function markStop(status){
+  const r=S.currentRoute;if(!r)return;
+  const s=r.stops[S.currentIdx];if(!s)return;
+  s.status=status;
+  // Save to localStorage
+  const routes=db('routes');
+  const ri=routes.findIndex(x=>x.id===r.id);
+  if(ri!==-1){routes[ri]=r;save('routes',routes);}
+  // SMS notification on delivery
+  if(status==='delivered'&&s.phone){
+    const msg=encodeURIComponent(`Hola ${s.client}! Tu pedido fue entregado en ${s.address}. ¡Gracias!`);
+    window.open(`sms:${s.phone}?body=${msg}`,'_blank');
+  }
+  const next=r.stops.findIndex(x=>x.status==='pending');
+  if(next===-1){
+    r.status='completed';
+    if(ri!==-1){routes[ri]=r;save('routes',routes);}
+    alert('🎉 ¡Ruta completada!');
+    goHome();return;
+  }
+  S.currentIdx=next;
+  updateMapPanel();
+  initNavMap();
+}
+
+function openWaze(){
+  const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;
+  window.open(`https://waze.com/ul?q=${encodeURIComponent(s.address)}&navigate=yes`,'_blank');
+}
+function openMaps(){
+  const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;
+  const q=s.lat&&s.lng?`${s.lat},${s.lng}`:encodeURIComponent(s.address);
+  window.open(`https://maps.google.com/?q=${q}`,'_blank');
+}
+
+function toggleStopList(){
+  const p=document.getElementById('stoplist-panel');
+  const vis=p.style.display!=='none';
+  if(!vis){
+    const r=S.currentRoute;
+    document.getElementById('stoplist-content').innerHTML=r.stops.map((s,i)=>`
+      <div class="stop-item" style="border-left-color:${s.color||r.color||'#00e5ff'};margin-bottom:8px;cursor:pointer" onclick="jumpToStop(${i})">
+        <div class="snum" style="background:${s.status==='delivered'?'#00e676':s.status==='failed'?'#ff5252':s.color||r.color||'#00e5ff'};color:#0a0e1a">${s.status==='delivered'?'✓':s.status==='failed'?'✕':i+1}</div>
+        <div class="sinfo">
+          <div class="saddr">${s.address.slice(0,45)}</div>
+          <div class="sclient">👤 ${s.client}</div>
+          ${s.timeFrom?`<div class="stime">⏰ ${s.timeFrom} – ${s.timeTo}</div>`:''}
+          <span class="stop-status status-${s.status}">${s.status==='delivered'?'Entregado':s.status==='failed'?'No entregado':'Pendiente'}</span>
+        </div>
+      </div>`).join('');
+  }
+  p.style.display=vis?'none':'block';
+}
+
+function jumpToStop(i){
+  S.currentIdx=i;
+  document.getElementById('stoplist-panel').style.display='none';
+  updateMapPanel();
+  const s=S.currentRoute.stops[i];
+  if(s&&s.lat&&navMap)navMap.setView([s.lat,s.lng],15);
+}
+
+// ══════════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════════
+function renderHistory(){
+  const hist=db('history');
+  const el=document.getElementById('history-list');
+  if(!hist.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial</div></div>`;
+    return;
+  }
+  el.innerHTML=hist.map(r=>{
+    const del=r.stops.filter(s=>s.status==='delivered').length;
+    const fail=r.stops.filter(s=>s.status==='failed').length;
+    const tot=r.stops.length;
+    const pct=tot>0?Math.round((del/tot)*100):0;
+    return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
+      <div class="card-hdr"><div class="card-title">${r.name}</div><div class="card-date">${r.date}</div></div>
+      <div class="card-info">📍 ${tot} paradas · ✅ ${del} · ❌ ${fail} · 📊 ${pct}%</div>
+      <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// DISPATCHER
+// ══════════════════════════════════════════════════════════════
+function renderDispatcher(){
+  const tab=S.dispTab;
+  const el=document.getElementById('dispatcher-content');
+  const bar=document.getElementById('dispatcher-bar');
+  if(tab==='stats'){
+    bar.style.display='none';
+    const routes=db('routes');
+    const allStops=routes.flatMap(r=>r.stops);
+    const del=allStops.filter(s=>s.status==='delivered').length;
+    const fail=allStops.filter(s=>s.status==='failed').length;
+    const pend=allStops.filter(s=>s.status==='pending').length;
+    el.innerHTML=`
+      <div style="padding:16px">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${routes.length}</div><div class="stat-lbl">Rutas totales</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--success)">${del}</div><div class="stat-lbl">Entregados</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--danger)">${fail}</div><div class="stat-lbl">No entregados</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${pend}</div><div class="stat-lbl">Pendientes</div></div>
+        </div>
+        <div class="stat-card" style="margin-bottom:12px">
+          <div class="stat-num" style="color:var(--accent)">${allStops.length>0?Math.round((del/allStops.length)*100):0}%</div>
+          <div class="stat-lbl">Tasa de entrega</div>
+        </div>
+      </div>`;
+    return;
+  }
+  if(tab==='drivers'){
+    bar.style.display='flex';
+    const drivers=db('drivers');
+    const routes=db('routes');
+    if(!drivers.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Sin conductores</div><div class="empty-sub">Agregá uno abajo</div></div>`;return;}
+    el.innerHTML=drivers.map((d,i)=>{
+      const route=routes.find(r=>r.id===d.currentRoute);
+      return `<div class="card">
+        <div class="card-hdr">
+          <div class="card-title">🚚 ${d.name}</div>
+          <span class="badge ${d.status==='available'?'badge-green':'badge-yellow'}">${d.status==='available'?'Disponible':'En ruta'}</span>
+        </div>
+        ${route?`<div class="card-info">📌 Ruta activa: ${route.name}</div>`:''}
+        ${d.status==='available'&&routes.length?`
+          <div style="margin-top:10px">
+            <div class="sec-title" style="margin-bottom:8px">Asignar ruta:</div>
+            ${routes.filter(r=>r.status!=='completed').slice(0,3).map(r=>`
+              <button onclick="assignRoute(${i},'${r.id}')" style="width:100%;text-align:left;background:var(--bg3);border:none;color:var(--accent);border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;font-size:13px;border-left:3px solid ${r.color||'var(--accent)'}">📍 ${r.name}</button>
+            `).join('')}
+          </div>`:''}
+      </div>`;
+    }).join('');
+  } else {
+    bar.style.display='none';
+    const routes=db('routes');
+    const drivers=db('drivers');
+    if(!routes.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas</div></div>`;return;}
+    el.innerHTML=`<button class="btn-main" style="margin:16px 16px 0" onclick="goBuilder()">+ Nueva Ruta</button>`+
+    routes.map(r=>{
+      const drv=drivers.find(d=>d.currentRoute===r.id);
+      const del=r.stops.filter(s=>s.status==='delivered').length;
+      const tot=r.stops.length;
+      const pct=tot>0?Math.round((del/tot)*100):0;
+      return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
+        <div class="card-hdr"><div class="card-title">${r.name}</div><div class="card-date">${r.date}</div></div>
+        <div class="card-info">📍 ${tot} paradas · 👤 ${drv?drv.name:'Sin asignar'}</div>
+        <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div></div>
+        <div style="font-size:11px;color:var(--text2);text-align:right;font-family:var(--mono);margin-top:2px">${del}/${tot}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function addDriver(){
+  const name=document.getElementById('driver-name').value.trim();if(!name)return;
+  const drivers=db('drivers');
+  drivers.push({id:Date.now().toString(),name,status:'available',currentRoute:null});
+  save('drivers',drivers);
+  document.getElementById('driver-name').value='';
+  renderDispatcher();
+}
+
+function assignRoute(di,rid){
+  const drivers=db('drivers');
+  drivers[di].status='on-route';drivers[di].currentRoute=rid;
+  save('drivers',drivers);alert('✅ Ruta asignada');renderDispatcher();
+}
+
+function switchTab(tab){
+  S.dispTab=tab;
+  ['drivers','droutes','stats'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  renderDispatcher();
+}
+
+// ══════════════════════════════════════════════════════════════
+// QR SCANNER (MercadoLibre)
+// ══════════════════════════════════════════════════════════════
+async function openQR(){
+  document.getElementById('qr-overlay').classList.add('active');
+  try{
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const video=document.getElementById('qr-video');
+    video.srcObject=qrStream;
+    qrInterval=setInterval(()=>scanQRFrame(video),400);
+  }catch(e){
+    alert('No se pudo acceder a la cámara');
+    closeQR();
+  }
+}
+
+function scanQRFrame(video){
+  if(video.readyState!==video.HAVE_ENOUGH_DATA)return;
+  const canvas=document.createElement('canvas');
+  canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(video,0,0);
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const code=jsQR(img.data,img.width,img.height);
+  if(code){
+    clearInterval(qrInterval);
+    processQRCode(code.data);
+    closeQR();
+  }
+}
+
+function processQRCode(data){
+  // MercadoLibre QR typically contains tracking info and address
+  // Try to extract address from QR data
+  let addr='';let client='';
+  // Common ML QR format parsing
+  try{
+    if(data.includes('|')){
+      const parts=data.split('|');
+      addr=parts.find(p=>p.includes('Calle')||p.includes('Av.')||p.includes('Blvd')||p.match(/\d{3,}/))?.trim()||parts[0];
+      client=parts.find(p=>p.length>3&&!p.match(/^\d+$/))?.trim()||'Cliente ML';
+    } else if(data.startsWith('http')){
+      addr=data;client='MercadoLibre';
+    } else {
+      addr=data;client='MercadoLibre';
+    }
+  }catch(e){addr=data;client='MercadoLibre';}
+  document.getElementById('stop-addr').value=addr;
+  document.getElementById('stop-client').value=client;
+  // Trigger autocomplete
+  onAddrInput(addr);
+  alert(`✅ QR escaneado\nDirección: ${addr}\nVerificá y completá los datos si es necesario.`);
+}
+
+function closeQR(){
+  document.getElementById('qr-overlay').classList.remove('active');
+  clearInterval(qrInterval);
+  if(qrStream)qrStream.getTracks().forEach(t=>t.stop());
+  qrStream=null;
+}
+
+// ══════════════════════════════════════════════════════════════
+// PHOTO CAPTURE
+// ══════════════════════════════════════════════════════════════
+async function openPhotoForStop(){
+  S.photoTarget='stop';
+  await startCamera();
+}
+async function openPhotoNav(){
+  S.photoTarget='nav';
+  await startCamera();
+}
+
+async function startCamera(){
+  document.getElementById('photo-modal').classList.add('active');
+  try{
+    photoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    document.getElementById('photo-video').srcObject=photoStream;
+  }catch(e){alert('No se pudo acceder a la cámara');closePhoto();}
+}
+
+function takePhoto(){
+  const video=document.getElementById('photo-video');
+  const canvas=document.getElementById('photo-canvas');
+  canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+  canvas.getContext('2d').drawImage(video,0,0);
+  const dataUrl=canvas.toDataURL('image/jpeg',0.7);
+  if(S.photoTarget==='stop'){
+    S.pendingPhoto=dataUrl;
+    alert('📸 Foto guardada. Se agregará a la próxima parada.');
+  } else if(S.photoTarget==='nav'){
+    const r=S.currentRoute;
+    if(r){
+      r.stops[S.currentIdx].photo=dataUrl;
+      const routes=db('routes');
+      const ri=routes.findIndex(x=>x.id===r.id);
+      if(ri!==-1){routes[ri]=r;save('routes',routes);}
+      alert('📸 Foto guardada para esta entrega.');
+    }
+  }
+  closePhoto();
+}
+
+function closePhoto(){
+  document.getElementById('photo-modal').classList.remove('active');
+  if(photoStream)photoStream.getTracks().forEach(t=>t.stop());
+  photoStream=null;
+}
+</script>
+</body>
+</html>
