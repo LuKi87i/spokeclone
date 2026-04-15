@@ -3,406 +3,423 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0e1a">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>SpokeClone</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--bg4:#1e2d42;
-  --accent:#00e5ff;--accent2:#0097a7;--success:#00e676;--warn:#ffab40;--danger:#ff5252;
-  --text:#f0f4ff;--text2:#8899aa;--text3:#445566;
-  --radius:14px;--radius-sm:8px;--radius-lg:20px;
-  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --bg:#f5f6fa;--bg2:#ffffff;--bg3:#f0f1f5;--bg4:#e4e6ef;
+  --primary:#5b5fc7;--primary-light:#eeeeff;--primary-dark:#4649a8;
+  --success:#22c55e;--success-light:#dcfce7;
+  --danger:#ef4444;--danger-light:#fee2e2;
+  --warn:#f59e0b;--warn-light:#fef3c7;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --border:#e5e7eb;--shadow:0 1px 3px rgba(0,0,0,0.08);
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;
+  --font:'Inter',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
 input,button,select,textarea{font-family:var(--font);}
 
-/* ── SCREENS ── */
 .screen{display:none;min-height:100vh;flex-direction:column;}
 .screen.active{display:flex;}
 
 /* ── LOGIN ── */
-#screen-login{background:linear-gradient(160deg,#0a0e1a 60%,#0d2137);}
-.login-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;}
-.login-brand{text-align:center;margin-bottom:48px;}
-.login-icon{font-size:52px;display:block;margin-bottom:12px;}
-.login-title{font-size:32px;font-weight:700;color:var(--accent);letter-spacing:-0.5px;}
-.login-sub{color:var(--text2);font-size:14px;margin-top:4px;}
+#screen-login{background:#fff;}
+.login-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;max-width:420px;margin:0 auto;width:100%;}
+.login-logo{text-align:center;margin-bottom:40px;}
+.login-logo-icon{width:64px;height:64px;background:var(--primary);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px;}
+.login-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.login-sub{color:var(--text2);font-size:14px;}
 .role-row{display:flex;background:var(--bg3);border-radius:var(--radius);padding:4px;margin-bottom:24px;gap:4px;}
-.role-btn{flex:1;padding:11px;text-align:center;background:transparent;border:none;color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;transition:all 0.2s;}
-.role-btn.active{background:var(--accent);color:#0a0e1a;}
-.field{position:relative;margin-bottom:14px;}
-.field input{width:100%;background:var(--bg3);border:1.5px solid var(--bg4);border-radius:var(--radius);padding:15px 16px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(--accent);}
-.btn-main{width:100%;background:var(--accent);color:#0a0e1a;border:none;border-radius:var(--radius);padding:17px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:0.3px;transition:opacity 0.15s;}
-.btn-main:active{opacity:0.82;}
+.role-btn{flex:1;padding:10px;text-align:center;background:transparent;border:none;color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;border-radius:var(--radius-sm);transition:all 0.2s;}
+.role-btn.active{background:#fff;color:var(--primary);font-weight:600;box-shadow:var(--shadow);}
+.inp{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:13px 14px;color:var(--text);font-size:15px;outline:none;transition:border-color 0.2s;margin-bottom:12px;}
+.inp:focus{border-color:var(--primary);}
+.btn-main{width:100%;background:var(--primary);color:#fff;border:none;border-radius:var(--radius);padding:15px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.btn-main:active{background:var(--primary-dark);}
+.lbl{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block;}
 
 /* ── HEADER ── */
-.hdr{background:var(--bg2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bg4);position:sticky;top:0;z-index:1000;}
-.hdr-title{font-size:17px;font-weight:700;color:var(--accent);}
-.hdr-btn{background:transparent;border:none;color:var(--accent);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:8px;}
-.hdr-btn:active{background:var(--bg3);}
+.hdr{background:#fff;padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1000;}
+.hdr-left{display:flex;align-items:center;gap:10px;}
+.hdr-back{background:transparent;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:8px 4px;display:flex;align-items:center;}
+.hdr-title{font-size:17px;font-weight:600;color:var(--text);}
+.hdr-action{background:transparent;border:none;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer;padding:8px;}
 
-/* ── TABS ── */
-.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bg4);}
-.tab{flex:1;padding:13px 8px;text-align:center;background:transparent;border:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* ── BOTTOM NAV ── */
+.bottom-nav{background:#fff;border-top:1px solid var(--border);padding:8px 0 20px;display:flex;position:sticky;bottom:0;z-index:999;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:none;cursor:pointer;padding:6px 0;}
+.bnav-icon{font-size:20px;}
+.bnav-label{font-size:10px;color:var(--text3);font-weight:500;}
+.bnav-item.active .bnav-label{color:var(--primary);}
 
-/* ── BOTTOM BAR ── */
-.btm{background:var(--bg2);border-top:1px solid var(--bg4);padding:12px 16px;display:flex;gap:10px;position:sticky;bottom:0;z-index:999;}
-.btn-sec{flex:1;background:var(--bg3);border:none;color:var(--accent);border-radius:var(--radius);padding:14px;font-size:14px;font-weight:600;cursor:pointer;}
-.btn-sm{background:var(--accent);border:none;color:#0a0e1a;border-radius:var(--radius-sm);padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-.btn-danger{background:var(--danger);border:none;color:#fff;border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;cursor:pointer;}
-
-/* ── LIST / CARDS ── */
-.list{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;}
-.card{background:var(--bg2);border-radius:var(--radius);padding:16px;margin-bottom:12px;border-left:4px solid var(--accent);transition:transform 0.1s;}
-.card:active{transform:scale(0.99);}
-.card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
-.card-title{font-size:16px;font-weight:700;}
-.card-date{font-size:11px;color:var(--text2);font-family:var(--mono);}
-.card-info{font-size:13px;color:var(--text2);margin-bottom:3px;}
+/* ── CARDS / LIST ── */
+.list{flex:1;overflow-y:auto;padding:16px;background:var(--bg);}
+.card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.card-title{font-size:15px;font-weight:600;color:var(--text);}
+.card-sub{font-size:13px;color:var(--text2);margin-bottom:3px;}
 .card-actions{display:flex;gap:8px;margin-top:12px;}
-.badge{display:inline-block;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;}
-.badge-green{background:rgba(0,230,118,0.15);color:var(--success);}
-.badge-yellow{background:rgba(255,171,64,0.15);color:var(--warn);}
-.badge-red{background:rgba(255,82,82,0.15);color:var(--danger);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;}
+.btn-primary{background:var(--primary);border:none;border-radius:var(--radius-sm);padding:9px 16px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;}
+.btn-danger-sm{background:transparent;border:1.5px solid var(--danger);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;color:var(--danger);cursor:pointer;}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;gap:4px;}
+.badge-blue{background:var(--primary-light);color:var(--primary);}
+.badge-green{background:var(--success-light);color:#16a34a;}
+.badge-red{background:var(--danger-light);color:var(--danger);}
+.badge-yellow{background:var(--warn-light);color:#b45309;}
+.badge-gray{background:var(--bg3);color:var(--text2);}
 
 /* ── FORM ── */
-.form-wrap{flex:1;overflow-y:auto;padding:16px;padding-bottom:90px;}
-.fsec{background:var(--bg2);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
-.sec-title{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px;}
-.inp{width:100%;background:var(--bg3);border:1.5px solid var(--bg4);border-radius:var(--radius-sm);padding:13px 14px;color:var(--text);font-size:14px;outline:none;margin-bottom:10px;transition:border-color 0.2s;}
-.inp:focus{border-color:var(--accent);}
-.inp:last-child{margin-bottom:0;}
+.form-wrap{flex:1;overflow-y:auto;padding:16px;background:var(--bg);padding-bottom:90px;}
+.fsec{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.sec-title{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:0.6px;text-transform:uppercase;margin-bottom:12px;}
 .inp-row{display:flex;gap:8px;}
 .inp-row .inp{flex:1;}
+.inp-sm{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px;outline:none;flex:1;}
+.inp-sm:focus{border-color:var(--primary);}
 
 /* ── AUTOCOMPLETE ── */
-.ac-wrap{position:relative;margin-bottom:10px;}
+.ac-wrap{position:relative;margin-bottom:12px;}
 .ac-wrap .inp{margin-bottom:0;}
-.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1.5px solid var(--accent);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
-.ac-item{padding:11px 14px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--bg3);}
-.ac-item:hover,.ac-item:active{background:var(--bg3);}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--primary);border-top:none;border-radius:0 0 var(--radius) var(--radius);z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 16px rgba(0,0,0,0.1);}
+.ac-item{padding:12px 14px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px;}
+.ac-item:hover{background:var(--bg3);}
 .ac-item:last-child{border-bottom:none;}
-.ac-loading{padding:10px 14px;color:var(--text2);font-size:13px;}
+.ac-pin{color:var(--primary);flex-shrink:0;margin-top:1px;}
+.ac-loading{padding:12px 14px;color:var(--text2);font-size:13px;display:flex;align-items:center;gap:8px;}
 
 /* ── COLOR PICKER ── */
-.color-grid{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0;}
-.cdot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;}
-.cdot.sel{border-color:#fff;transform:scale(1.15);}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.cdot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;flex-shrink:0;}
+.cdot.sel{border-color:var(--text);transform:scale(1.1);}
 
 /* ── STOP ITEMS ── */
-.stop-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:var(--radius);padding:12px;margin-bottom:8px;border-left:3px solid transparent;}
-.snum{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#0a0e1a;margin-top:2px;}
+.stop-item{background:#fff;border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;box-shadow:var(--shadow);}
+.stop-item.delivered{opacity:0.6;}
+.snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#fff;margin-top:2px;}
 .sinfo{flex:1;min-width:0;}
-.saddr{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.sclient{font-size:12px;color:var(--text2);margin-top:2px;}
-.stime{font-size:11px;color:var(--accent);font-family:var(--mono);margin-top:2px;}
-.sphotos{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
-.sphoto{width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--bg4);}
-.btn-remove{background:transparent;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+.saddr{font-size:14px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sclient{font-size:13px;color:var(--text2);margin-top:2px;}
+.stime{font-size:12px;color:var(--primary);font-weight:500;margin-top:3px;}
+.snotes{font-size:12px;color:var(--text3);margin-top:2px;font-style:italic;}
+.sphoto{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+.btn-remove{background:transparent;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px;flex-shrink:0;}
 
 /* ── MAP BUILDER ── */
-#builder-map{height:270px;width:100%;border-radius:var(--radius);margin-bottom:14px;z-index:1;}
+#builder-map{height:260px;border-radius:var(--radius);margin-bottom:12px;z-index:1;border:1px solid var(--border);}
 
 /* ── NAV MAP ── */
-#nav-map{flex:1;min-height:180px;z-index:1;}
-.map-panel{background:var(--bg);border-top-left-radius:24px;border-top-right-radius:24px;padding:16px 16px 20px;flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,0.5);}
-.map-handle{width:36px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 14px;}
-.map-ctr{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
-.map-name{font-size:20px;font-weight:700;margin-bottom:3px;}
-.map-addr{color:var(--text2);font-size:13px;margin-bottom:4px;}
-.map-time{color:var(--warn);font-size:12px;font-family:var(--mono);margin-bottom:14px;}
-.nav-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
-.nav-btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.btn-nav{background:var(--bg3);border:1px solid var(--bg4);border-radius:var(--radius);padding:12px 8px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
-.btn-delivered{background:var(--success);border-color:var(--success);color:#0a0e1a;}
-.btn-nodelivered{background:var(--danger);border-color:var(--danger);color:#fff;}
-.prog-bar{background:var(--bg3);border-radius:3px;height:5px;overflow:hidden;margin:10px 0 4px;}
-.prog-fill{height:100%;border-radius:3px;transition:width 0.4s;}
-.prog-txt{font-size:11px;color:var(--text2);text-align:right;font-family:var(--mono);}
+#nav-map{flex:1;min-height:200px;z-index:1;}
+
+/* ── DELIVERY PANEL ── */
+.del-panel{background:#fff;border-top:1px solid var(--border);padding:16px;flex-shrink:0;}
+.del-stop-idx{font-size:11px;font-weight:700;color:var(--primary);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;}
+.del-stop-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.del-stop-addr{font-size:13px;color:var(--text2);margin-bottom:3px;}
+.del-stop-time{font-size:12px;color:var(--warn);font-weight:600;margin-bottom:12px;}
+.del-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.del-btns2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.del-btn{border:none;border-radius:var(--radius);padding:13px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;}
+.del-btn-delivered{background:var(--success);color:#fff;}
+.del-btn-failed{background:var(--danger);color:#fff;}
+.del-btn-waze{background:#00aaff;color:#fff;}
+.del-btn-maps{background:#4285f4;color:#fff;}
+.del-btn-photo{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.del-btn-list{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.prog-wrap{margin-top:8px;}
+.prog-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.prog-fill{height:100%;background:var(--primary);border-radius:2px;transition:width 0.4s;}
+.prog-txt{font-size:11px;color:var(--text2);display:flex;justify-content:space-between;}
+
+/* ── STOP LIST OVERLAY ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;}
+.overlay.active{display:block;}
+.overlay-panel{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;max-height:75vh;overflow-y:auto;padding:20px 16px 32px;}
+.overlay-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.overlay-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+
+/* ── STOP STATUS ── */
+.sstatus{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;border-radius:100px;padding:2px 8px;margin-top:4px;}
+.sstatus-pending{background:var(--bg3);color:var(--text2);}
+.sstatus-delivered{background:var(--success-light);color:#16a34a;}
+.sstatus-failed{background:var(--danger-light);color:var(--danger);}
 
 /* ── QR SCANNER ── */
-.qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;}
+.qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;flex-direction:column;align-items:center;justify-content:center;}
 .qr-overlay.active{display:flex;}
-.qr-box{width:260px;height:260px;border:3px solid var(--accent);border-radius:16px;position:relative;overflow:hidden;}
-.qr-box video{width:100%;height:100%;object-fit:cover;}
-.qr-corners::before,.qr-corners::after{content:'';position:absolute;width:30px;height:30px;border-color:var(--accent);border-style:solid;}
-.qr-corners::before{top:0;left:0;border-width:3px 0 0 3px;}
-.qr-corners::after{bottom:0;right:0;border-width:0 3px 3px 0;}
-.qr-label{color:var(--text);font-size:15px;margin-top:20px;text-align:center;}
-.qr-close{margin-top:20px;background:transparent;border:1.5px solid var(--text2);color:var(--text2);border-radius:var(--radius);padding:12px 32px;font-size:15px;cursor:pointer;}
+.qr-frame{width:260px;height:260px;position:relative;border-radius:12px;overflow:hidden;}
+.qr-frame video{width:100%;height:100%;object-fit:cover;}
+.qr-corner{position:absolute;width:24px;height:24px;border-color:var(--primary);border-style:solid;}
+.qr-corner.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:4px 0 0 0;}
+.qr-corner.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 4px 0 0;}
+.qr-corner.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 4px;}
+.qr-corner.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 4px 0;}
+.qr-scan-line{position:absolute;left:0;right:0;height:2px;background:var(--primary);animation:scan 2s linear infinite;}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.qr-hint{color:#fff;font-size:14px;margin-top:20px;text-align:center;opacity:0.8;}
+.qr-close-btn{margin-top:24px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:var(--radius);padding:12px 32px;font-size:15px;cursor:pointer;}
 
 /* ── PHOTO MODAL ── */
-.photo-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9998;flex-direction:column;align-items:center;justify-content:center;}
+.photo-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9998;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
 .photo-modal.active{display:flex;}
-.photo-modal video{width:100%;max-width:400px;border-radius:var(--radius);}
-.photo-modal canvas{display:none;}
-.photo-modal-btns{display:flex;gap:12px;margin-top:16px;}
+.photo-video{width:100%;max-width:400px;border-radius:var(--radius);background:#000;}
+.photo-btns{display:flex;gap:12px;margin-top:16px;}
+.photo-shutter{width:64px;height:64px;background:#fff;border-radius:50%;border:4px solid rgba(255,255,255,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.photo-cancel{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:var(--radius);padding:12px 24px;font-size:15px;cursor:pointer;}
 
 /* ── STATS ── */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--bg2);border-radius:var(--radius);padding:16px;text-align:center;}
-.stat-num{font-size:28px;font-weight:700;color:var(--accent);}
+.stat-card{background:#fff;border-radius:var(--radius);padding:16px;text-align:center;border:1px solid var(--border);}
+.stat-num{font-size:28px;font-weight:700;color:var(--primary);}
 .stat-lbl{font-size:12px;color:var(--text2);margin-top:4px;}
-
-/* ── PROGRESS BAR ── */
-.route-prog{margin:8px 0 4px;}
-.route-prog-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
-.route-prog-fill{height:100%;border-radius:2px;transition:width 0.4s;}
 
 /* ── EMPTY ── */
 .empty{text-align:center;padding:60px 20px;}
-.empty-icon{font-size:52px;margin-bottom:14px;}
-.empty-title{font-size:18px;font-weight:700;margin-bottom:6px;}
-.empty-sub{color:var(--text2);font-size:13px;}
+.empty-icon{font-size:48px;margin-bottom:14px;opacity:0.5;}
+.empty-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.empty-sub{color:var(--text2);font-size:14px;}
 
-/* ── DELIVERY STATUS ── */
-.stop-status{display:inline-block;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-top:4px;}
-.status-delivered{background:rgba(0,230,118,0.15);color:var(--success);}
-.status-failed{background:rgba(255,82,82,0.15);color:var(--danger);}
-.status-pending{background:rgba(136,153,170,0.15);color:var(--text2);}
+/* ── ROUTE PROGRESS ── */
+.route-prog{margin:8px 0 0;}
+.route-prog-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.route-prog-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:12px 0;}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- ════════════════ LOGIN ════════════════ -->
+<!-- ══════ LOGIN ══════ -->
 <div class="screen active" id="screen-login">
   <div class="login-wrap">
-    <div class="login-brand">
-      <span class="login-icon">🚚</span>
+    <div class="login-logo">
+      <div class="login-logo-icon">🚚</div>
       <div class="login-title">SpokeClone</div>
-      <div class="login-sub">Gestión inteligente de rutas</div>
+      <div class="login-sub">Gestión de rutas de entrega</div>
     </div>
+    <label class="lbl">Ingresá como</label>
     <div class="role-row">
       <button class="role-btn active" id="role-driver" onclick="setRole('driver')">🏍️ Conductor</button>
       <button class="role-btn" id="role-dispatcher" onclick="setRole('dispatcher')">🖥️ Dispatcher</button>
     </div>
-    <div class="field"><input id="login-email" type="email" placeholder="Email"></div>
-    <div class="field"><input id="login-pass" type="password" placeholder="Contraseña"></div>
-    <button class="btn-main" onclick="doLogin()">Ingresar</button>
+    <label class="lbl">Email</label>
+    <input class="inp" id="login-email" type="email" placeholder="tu@email.com">
+    <label class="lbl">Contraseña</label>
+    <input class="inp" id="login-pass" type="password" placeholder="••••••••">
+    <button class="btn-main" onclick="doLogin()">Continuar</button>
   </div>
 </div>
 
-<!-- ════════════════ HOME ════════════════ -->
+<!-- ══════ HOME ══════ -->
 <div class="screen" id="screen-home">
   <div class="hdr">
-    <span class="hdr-title">🚚 Mis Rutas</span>
-    <button class="hdr-btn" onclick="doLogout()" title="Salir">⏏</button>
+    <div class="hdr-left">
+      <span class="hdr-title">Rutas</span>
+    </div>
+    <button class="hdr-action" onclick="goBuilder()">+ Nueva</button>
   </div>
   <div class="list" id="routes-list"></div>
-  <div class="btm">
-    <button class="btn-main" style="flex:2" onclick="goBuilder()">+ Nueva Ruta</button>
-    <button class="btn-sec" onclick="goHistory()">📋</button>
+  <div class="bottom-nav">
+    <button class="bnav-item active" onclick="goHome()">
+      <span class="bnav-icon">🗺️</span>
+      <span class="bnav-label">Rutas</span>
+    </button>
+    <button class="bnav-item" onclick="goHistory()">
+      <span class="bnav-icon">📋</span>
+      <span class="bnav-label">Historial</span>
+    </button>
+    <button class="bnav-item" onclick="doLogout()">
+      <span class="bnav-icon">👤</span>
+      <span class="bnav-label">Salir</span>
+    </button>
   </div>
 </div>
 
-<!-- ════════════════ BUILDER ════════════════ -->
+<!-- ══════ BUILDER ══════ -->
 <div class="screen" id="screen-route">
   <div class="hdr">
-    <button class="hdr-btn" onclick="goHome()">←</button>
-    <span class="hdr-title">Planificar Ruta</span>
-    <button class="hdr-btn" onclick="openQR()" title="Escanear QR">📷</button>
+    <div class="hdr-left">
+      <button class="hdr-back" onclick="goHome()">‹</button>
+      <span class="hdr-title">Nueva ruta</span>
+    </div>
+    <button class="hdr-action" onclick="saveRoute()">Guardar</button>
   </div>
   <div class="form-wrap">
-    <input class="inp" id="route-name" placeholder="Nombre de la ruta (ej: Zona Norte - Mañana)">
 
-    <!-- COLOR -->
     <div class="fsec">
-      <div class="sec-title">🎨 Color de ruta</div>
-      <div class="color-grid" id="color-picker"></div>
+      <input class="inp" id="route-name" placeholder="Nombre de la ruta" style="margin-bottom:0">
     </div>
 
-    <!-- MAPA -->
     <div id="builder-map"></div>
 
-    <!-- AGREGAR PARADA -->
     <div class="fsec">
-      <div class="sec-title">➕ Agregar parada</div>
+      <div class="sec-title">Agregar parada</div>
       <div class="ac-wrap">
-        <input class="inp" id="stop-addr" placeholder="Dirección *" autocomplete="off"
-          oninput="onAddrInput(this.value)" onblur="setTimeout(closeAC,200)">
+        <input class="inp" id="stop-addr" placeholder="Buscar dirección..." autocomplete="off"
+          oninput="onAddrInput(this.value)" onblur="setTimeout(closeAC,200)" style="margin-bottom:0">
         <div class="ac-list" id="ac-list" style="display:none"></div>
       </div>
-      <input class="inp" id="stop-client" placeholder="Nombre del cliente / destinatario">
-      <input class="inp" id="stop-phone" placeholder="Teléfono (para notificación)" type="tel">
-      <input class="inp" id="stop-notes" placeholder="Notas (ej: dejar en portería)">
-      <div class="inp-row">
-        <input class="inp" id="stop-from" type="time" title="Desde">
-        <input class="inp" id="stop-to" type="time" title="Hasta">
+      <div style="height:10px"></div>
+      <input class="inp" id="stop-client" placeholder="Destinatario">
+      <input class="inp" id="stop-notes" placeholder="Notas (ej: dejar en portería)" style="margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1">
+          <label class="lbl">Desde</label>
+          <input class="inp-sm" id="stop-from" type="time">
+        </div>
+        <div style="flex:1">
+          <label class="lbl">Hasta</label>
+          <input class="inp-sm" id="stop-to" type="time">
+        </div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
-        <span style="font-size:13px;color:var(--text2)">Color parada:</span>
-        <div class="color-grid" id="stop-color-picker" style="flex:1"></div>
+      <div style="margin-bottom:12px">
+        <label class="lbl">Color de la parada</label>
+        <div class="color-row" id="stop-color-picker"></div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn-main" style="flex:1" onclick="addStop()">Agregar</button>
-        <button class="btn-sec" onclick="openPhotoForStop()" title="Foto del paquete">📸</button>
-        <button class="btn-sec" onclick="openQR()" title="Escanear QR MercadoLibre">📷</button>
+        <button class="btn-main" style="flex:1" onclick="addStop()">Agregar parada</button>
+        <button class="btn-outline" onclick="openPhotoForStop()" title="Foto del paquete" style="padding:10px 14px;font-size:18px;">📸</button>
+        <button class="btn-outline" onclick="openQR()" title="Escanear QR" style="padding:10px 14px;font-size:18px;">📷</button>
       </div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div class="sec-title" style="margin:0">📍 Paradas (<span id="stop-count">0</span>)</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 2px;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:600;color:var(--text2)">PARADAS (<span id="stop-count">0</span>)</span>
     </div>
     <div id="stops-list"></div>
   </div>
-  <div class="btm">
-    <button class="btn-main" onclick="saveRoute()">🚀 Optimizar y Guardar Ruta</button>
-  </div>
 </div>
 
-<!-- ════════════════ NAVIGATION MAP ════════════════ -->
+<!-- ══════ NAV MAP ══════ -->
 <div class="screen" id="screen-map">
   <div class="hdr">
-    <button class="hdr-btn" onclick="goHome()">←</button>
-    <span class="hdr-title" id="nav-route-name">Navegación</span>
-    <button class="hdr-btn" onclick="toggleStopList()" id="stoplist-btn">☰</button>
+    <div class="hdr-left">
+      <button class="hdr-back" onclick="goHome()">‹</button>
+      <span class="hdr-title" id="nav-route-name">Ruta</span>
+    </div>
+    <button class="hdr-action" onclick="showStopList()">Lista</button>
   </div>
   <div id="nav-map"></div>
-
-  <!-- STOP LIST PANEL -->
-  <div id="stoplist-panel" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:2000;overflow-y:auto;padding:16px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <span style="font-size:17px;font-weight:700;color:var(--accent)">Todas las paradas</span>
-      <button onclick="toggleStopList()" style="background:transparent;border:none;color:var(--text);font-size:22px;cursor:pointer;">✕</button>
+  <div class="del-panel">
+    <div class="del-stop-idx" id="map-counter">PARADA 1 DE 1</div>
+    <div class="del-stop-name" id="map-client">-</div>
+    <div class="del-stop-addr" id="map-addr">-</div>
+    <div class="del-stop-time" id="map-time"></div>
+    <div class="del-btns">
+      <button class="del-btn del-btn-waze" onclick="openWaze()">🔵 Waze</button>
+      <button class="del-btn del-btn-maps" onclick="openMaps()">🗺️ Google Maps</button>
     </div>
-    <div id="stoplist-content"></div>
-  </div>
-
-  <div class="map-panel">
-    <div class="map-handle"></div>
-    <div class="map-ctr" id="map-counter">PARADA 1 DE 1</div>
-    <div class="map-name" id="map-client">-</div>
-    <div class="map-addr" id="map-addr">-</div>
-    <div class="map-time" id="map-time"></div>
-    <div class="nav-btns" style="margin-bottom:8px;">
-      <button class="btn-nav" onclick="openWaze()">🔵 Waze</button>
-      <button class="btn-nav" onclick="openMaps()">🗺️ Google Maps</button>
+    <div class="del-btns2">
+      <button class="del-btn del-btn-delivered" onclick="markStop('delivered')">✅ Entregado</button>
+      <button class="del-btn del-btn-failed" onclick="markStop('failed')">❌ No entregado</button>
+      <button class="del-btn del-btn-photo" onclick="openPhotoNav()">📸 Foto</button>
     </div>
-    <div class="nav-btns3">
-      <button class="btn-nav btn-delivered" onclick="markStop('delivered')">✅ Entregado</button>
-      <button class="btn-nav btn-nodelivered" onclick="markStop('failed')">❌ No entregado</button>
-      <button class="btn-nav" onclick="openPhotoNav()" style="font-size:18px;">📸</button>
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="map-progress" style="width:0%"></div></div>
+      <div class="prog-txt">
+        <span id="map-prog-left">0 pendientes</span>
+        <span id="map-prog-right">0 / 0</span>
+      </div>
     </div>
-    <div class="prog-bar"><div class="prog-fill" id="map-progress" style="width:0%"></div></div>
-    <div class="prog-txt" id="map-progress-text">0 entregadas</div>
   </div>
 </div>
 
-<!-- ════════════════ HISTORY ════════════════ -->
+<!-- ══════ HISTORY ══════ -->
 <div class="screen" id="screen-history">
   <div class="hdr">
-    <button class="hdr-btn" onclick="goHome()">←</button>
-    <span class="hdr-title">Historial</span>
-    <span></span>
+    <div class="hdr-left">
+      <button class="hdr-back" onclick="goHome()">‹</button>
+      <span class="hdr-title">Historial</span>
+    </div>
   </div>
   <div class="list" id="history-list"></div>
 </div>
 
-<!-- ════════════════ DISPATCHER ════════════════ -->
+<!-- ══════ DISPATCHER ══════ -->
 <div class="screen" id="screen-dispatcher">
   <div class="hdr">
-    <span class="hdr-title">🖥️ Panel Dispatcher</span>
-    <button class="hdr-btn" onclick="doLogout()">⏏</button>
+    <span class="hdr-title">Panel de despacho</span>
+    <button class="hdr-action" onclick="doLogout()">Salir</button>
   </div>
-  <div class="tabs">
-    <button class="tab active" id="tab-drivers" onclick="switchTab('drivers')">Conductores</button>
-    <button class="tab" id="tab-droutes" onclick="switchTab('droutes')">Rutas</button>
-    <button class="tab" id="tab-stats" onclick="switchTab('stats')">Estadísticas</button>
+  <div style="display:flex;background:#fff;border-bottom:1px solid var(--border);">
+    <button class="role-btn" id="tab-drivers" style="border-radius:0;padding:14px 0;border-bottom:2px solid transparent" onclick="switchTab('drivers')">Conductores</button>
+    <button class="role-btn" id="tab-droutes" style="border-radius:0;padding:14px 0;border-bottom:2px solid transparent" onclick="switchTab('droutes')">Rutas</button>
+    <button class="role-btn" id="tab-stats" style="border-radius:0;padding:14px 0;border-bottom:2px solid transparent" onclick="switchTab('stats')">Estadísticas</button>
   </div>
   <div class="list" id="dispatcher-content" style="padding-bottom:90px;"></div>
-  <div class="btm" id="dispatcher-bar">
+  <div style="background:#fff;border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;position:sticky;bottom:0;" id="dispatcher-bar">
     <input class="inp" id="driver-name" placeholder="Nombre del conductor" style="flex:1;margin:0">
-    <button class="btn-sm" onclick="addDriver()">+ Agregar</button>
+    <button class="btn-primary" onclick="addDriver()">Agregar</button>
   </div>
 </div>
 
-<!-- ════════════════ QR SCANNER ════════════════ -->
+<!-- ══════ STOP LIST OVERLAY ══════ -->
+<div class="overlay" id="stoplist-overlay" onclick="hideStopList()">
+  <div class="overlay-panel" onclick="event.stopPropagation()">
+    <div class="overlay-handle"></div>
+    <div class="overlay-title">Todas las paradas</div>
+    <div id="stoplist-content"></div>
+  </div>
+</div>
+
+<!-- ══════ QR SCANNER ══════ -->
 <div class="qr-overlay" id="qr-overlay">
-  <div class="qr-box">
+  <div class="qr-frame">
     <video id="qr-video" autoplay playsinline muted></video>
-    <div class="qr-corners"></div>
+    <div class="qr-corner tl"></div>
+    <div class="qr-corner tr"></div>
+    <div class="qr-corner bl"></div>
+    <div class="qr-corner br"></div>
+    <div class="qr-scan-line"></div>
   </div>
-  <div class="qr-label">Apuntá al código QR de MercadoLibre</div>
-  <button class="qr-close" onclick="closeQR()">Cancelar</button>
+  <div class="qr-hint">Apuntá al código QR del paquete</div>
+  <button class="qr-close-btn" onclick="closeQR()">Cancelar</button>
 </div>
 
-<!-- ════════════════ PHOTO MODAL ════════════════ -->
+<!-- ══════ PHOTO MODAL ══════ -->
 <div class="photo-modal" id="photo-modal">
-  <video id="photo-video" autoplay playsinline muted style="width:100%;max-width:400px;border-radius:var(--radius);"></video>
-  <canvas id="photo-canvas" style="display:none;"></canvas>
-  <div class="photo-modal-btns">
-    <button class="btn-main" onclick="takePhoto()">📸 Sacar foto</button>
-    <button class="btn-sec" onclick="closePhoto()">Cancelar</button>
+  <video id="photo-video" class="photo-video" autoplay playsinline muted></video>
+  <canvas id="photo-canvas" style="display:none"></canvas>
+  <div class="photo-btns">
+    <button class="photo-shutter" onclick="takePhoto()">📸</button>
+    <button class="photo-cancel" onclick="closePhoto()">Cancelar</button>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
-// ══════════════════════════════════════════════════════════════
-// STATE & STORAGE
-// ══════════════════════════════════════════════════════════════
-const COLORS = ['#00e5ff','#ff5252','#00e676','#ffab40','#ff80ab','#e040fb','#40c4ff','#ffd740','#69f0ae','#ff6e40'];
-let S = {
-  role: 'driver',
-  routeColor: COLORS[0],
-  stopColor: null,
-  pendingStops: [],
-  pendingPhoto: null,
-  currentRoute: null,
-  currentIdx: 0,
-  dispTab: 'drivers',
-  _lat: null, _lng: null,
-  photoTarget: null // 'stop' or 'nav'
-};
-let builderMap=null, navMap=null;
-let bMarkers=[], bPoly=null, nMarkers=[], nPoly=null;
-let acTimer=null, qrStream=null, photoStream=null, qrInterval=null;
+const COLORS=['#5b5fc7','#ef4444','#22c55e','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#f97316','#14b8a6','#6366f1'];
+let S={role:'driver',stopColor:COLORS[0],pendingStops:[],pendingPhoto:null,currentRoute:null,currentIdx:0,dispTab:'drivers',_lat:null,_lng:null,photoTarget:null};
+let builderMap=null,navMap=null,bMarkers=[],bPoly=null,nMarkers=[],nPoly=null;
+let acTimer=null,qrStream=null,photoStream=null,qrInterval=null;
 
-function db(k){ try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]} }
-function save(k,v){ localStorage.setItem(k,JSON.stringify(v)) }
+function db(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
-// ══════════════════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════════════════
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function goHome(){ show('screen-home'); renderRoutes(); }
-function goHistory(){ show('screen-history'); renderHistory(); }
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){show('screen-home');renderRoutes();}
+function goHistory(){show('screen-history');renderHistory();}
 function goBuilder(){
-  S.pendingStops=[];S.pendingPhoto=null;S.routeColor=COLORS[0];S.stopColor=null;
-  S._lat=null;S._lng=null;
+  S.pendingStops=[];S.pendingPhoto=null;S.stopColor=COLORS[0];S._lat=null;S._lng=null;
   show('screen-route');
-  document.getElementById('route-name').value='';
-  document.getElementById('stop-addr').value='';
-  document.getElementById('stop-client').value='';
-  document.getElementById('stop-phone').value='';
-  document.getElementById('stop-notes').value='';
-  document.getElementById('stop-from').value='';
-  document.getElementById('stop-to').value='';
-  renderColorPicker();
-  renderStopColorPicker();
-  renderStops();
+  ['route-name','stop-addr','stop-client','stop-notes','stop-from','stop-to'].forEach(id=>document.getElementById(id).value='');
+  renderStopColorPicker();renderStops();
   setTimeout(initBuilderMap,150);
 }
 
-// ══════════════════════════════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════════════════════════════
 function setRole(r){
   S.role=r;
   document.getElementById('role-driver').classList.toggle('active',r==='driver');
@@ -417,29 +434,18 @@ function doLogin(){
 }
 function doLogout(){show('screen-login');}
 
-// ══════════════════════════════════════════════════════════════
-// COLOR PICKERS
-// ══════════════════════════════════════════════════════════════
-function renderColorPicker(){
-  document.getElementById('color-picker').innerHTML=COLORS.map(c=>
-    `<div class="cdot${c===S.routeColor?' sel':''}" style="background:${c}" onclick="S.routeColor='${c}';renderColorPicker();renderStops();updateBuilderMap()"></div>`
-  ).join('');
-}
 function renderStopColorPicker(){
-  const cur = S.stopColor||S.routeColor;
   document.getElementById('stop-color-picker').innerHTML=COLORS.map(c=>
-    `<div class="cdot${c===cur?' sel':''}" style="background:${c};width:22px;height:22px" onclick="S.stopColor='${c}';renderStopColorPicker()"></div>`
+    `<div class="cdot${c===S.stopColor?' sel':''}" style="background:${c}" onclick="S.stopColor='${c}';renderStopColorPicker()"></div>`
   ).join('');
 }
 
-// ══════════════════════════════════════════════════════════════
-// BUILDER MAP
-// ══════════════════════════════════════════════════════════════
 function initBuilderMap(){
   if(builderMap){builderMap.remove();builderMap=null;bMarkers=[];bPoly=null;}
   builderMap=L.map('builder-map').setView([-34.6037,-58.3816],12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(builderMap);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(builderMap);
 }
+
 function updateBuilderMap(){
   if(!builderMap)return;
   bMarkers.forEach(m=>builderMap.removeLayer(m));bMarkers=[];
@@ -447,21 +453,18 @@ function updateBuilderMap(){
   const stops=S.pendingStops.filter(s=>s.lat&&s.lng);
   if(!stops.length)return;
   stops.forEach((s,i)=>{
-    const c=s.color||S.routeColor;
-    const icon=L.divIcon({className:'',html:`<div style="background:${c};color:#0a0e1a;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)">${i+1}</div>`,iconSize:[30,30],iconAnchor:[15,15]});
+    const c=s.color||COLORS[0];
+    const icon=L.divIcon({className:'',html:`<div style="background:${c};color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25)">${i+1}</div>`,iconSize:[32,32],iconAnchor:[16,16]});
     const m=L.marker([s.lat,s.lng],{icon}).addTo(builderMap);
-    m.bindPopup(`<b>${s.client}</b><br>${s.address}${s.timeFrom?'<br>⏰ '+s.timeFrom+' - '+s.timeTo:''}`);
+    m.bindPopup(`<b>${s.client}</b><br>${s.address}`);
     bMarkers.push(m);
   });
   if(stops.length>1){
-    bPoly=L.polyline(stops.map(s=>[s.lat,s.lng]),{color:S.routeColor,weight:3,opacity:0.7,dashArray:'6 4'}).addTo(builderMap);
+    bPoly=L.polyline(stops.map(s=>[s.lat,s.lng]),{color:'#5b5fc7',weight:3,opacity:0.6,dashArray:'6 4'}).addTo(builderMap);
   }
   builderMap.fitBounds(L.featureGroup(bMarkers).getBounds().pad(0.2));
 }
 
-// ══════════════════════════════════════════════════════════════
-// AUTOCOMPLETE
-// ══════════════════════════════════════════════════════════════
 function onAddrInput(v){
   clearTimeout(acTimer);
   const el=document.getElementById('ac-list');
@@ -473,10 +476,10 @@ function onAddrInput(v){
 async function fetchAC(q){
   const el=document.getElementById('ac-list');
   try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1`,{headers:{'Accept-Language':'es','User-Agent':'SpokeClone/1.0'}});
+    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6`,{headers:{'Accept-Language':'es','User-Agent':'SpokeClone/1.0'}});
     const data=await r.json();
     if(!data.length){el.innerHTML='<div class="ac-loading">Sin resultados</div>';return;}
-    el.innerHTML=data.map(d=>`<div class="ac-item" onmousedown="selectAC('${d.display_name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${d.lat},${d.lon})">📍 ${d.display_name}</div>`).join('');
+    el.innerHTML=data.map(d=>`<div class="ac-item" onmousedown="selectAC('${d.display_name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${d.lat},${d.lon})"><span class="ac-pin">📍</span><span>${d.display_name}</span></div>`).join('');
   }catch(e){el.style.display='none';}
 }
 function selectAC(name,lat,lon){
@@ -486,36 +489,22 @@ function selectAC(name,lat,lon){
 }
 function closeAC(){document.getElementById('ac-list').style.display='none';}
 
-// ══════════════════════════════════════════════════════════════
-// STOPS
-// ══════════════════════════════════════════════════════════════
 function addStop(){
   const addr=document.getElementById('stop-addr').value.trim();
   if(!addr){alert('Ingresá la dirección');return;}
-  const stop={
-    id:Date.now().toString(),
-    address:addr,
+  S.pendingStops.push({
+    id:Date.now().toString(),address:addr,
     client:document.getElementById('stop-client').value.trim()||'Sin nombre',
-    phone:document.getElementById('stop-phone').value.trim(),
     notes:document.getElementById('stop-notes').value.trim(),
     timeFrom:document.getElementById('stop-from').value,
     timeTo:document.getElementById('stop-to').value,
-    color:S.stopColor||S.routeColor,
-    lat:S._lat,lng:S._lng,
-    status:'pending',
-    photo:S.pendingPhoto||null,
+    color:S.stopColor,lat:S._lat,lng:S._lng,
+    status:'pending',photo:S.pendingPhoto||null,
     order:S.pendingStops.length+1
-  };
-  S.pendingStops.push(stop);
+  });
   S._lat=null;S._lng=null;S.pendingPhoto=null;
-  document.getElementById('stop-addr').value='';
-  document.getElementById('stop-client').value='';
-  document.getElementById('stop-phone').value='';
-  document.getElementById('stop-notes').value='';
-  document.getElementById('stop-from').value='';
-  document.getElementById('stop-to').value='';
-  S.stopColor=null;
-  renderStops();renderStopColorPicker();updateBuilderMap();
+  ['stop-addr','stop-client','stop-notes','stop-from','stop-to'].forEach(id=>document.getElementById(id).value='');
+  renderStops();updateBuilderMap();
 }
 
 function removeStop(i){
@@ -526,79 +515,52 @@ function removeStop(i){
 
 function renderStops(){
   document.getElementById('stop-count').textContent=S.pendingStops.length;
+  if(!S.pendingStops.length){
+    document.getElementById('stops-list').innerHTML=`<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">Todavía no agregaste paradas</div>`;
+    return;
+  }
   document.getElementById('stops-list').innerHTML=S.pendingStops.map((s,i)=>`
-    <div class="stop-item" style="border-left-color:${s.color||S.routeColor}">
-      <div class="snum" style="background:${s.color||S.routeColor}">${i+1}</div>
+    <div class="stop-item">
+      <div class="snum" style="background:${s.color||COLORS[0]}">${i+1}</div>
       <div class="sinfo">
-        <div class="saddr">${s.address.length>48?s.address.slice(0,48)+'…':s.address}</div>
-        <div class="sclient">👤 ${s.client}${s.phone?' · 📱 '+s.phone:''}</div>
+        <div class="saddr">${s.address.length>45?s.address.slice(0,45)+'…':s.address}</div>
+        <div class="sclient">${s.client}</div>
         ${s.timeFrom?`<div class="stime">⏰ ${s.timeFrom} – ${s.timeTo||'?'}</div>`:''}
-        ${s.notes?`<div class="sclient">📝 ${s.notes}</div>`:''}
-        ${s.photo?`<div class="sphotos"><img class="sphoto" src="${s.photo}"></div>`:''}
+        ${s.notes?`<div class="snotes">${s.notes}</div>`:''}
       </div>
+      ${s.photo?`<img class="sphoto" src="${s.photo}">`:''} 
       <button class="btn-remove" onclick="removeStop(${i})">✕</button>
     </div>`).join('');
 }
 
-// ══════════════════════════════════════════════════════════════
-// SAVE ROUTE (with time-window optimization)
-// ══════════════════════════════════════════════════════════════
+function optimizeRoute(stops){
+  const withTime=stops.filter(s=>s.timeFrom).sort((a,b)=>a.timeFrom.localeCompare(b.timeFrom));
+  const noTime=stops.filter(s=>!s.timeFrom);
+  const rem=[...noTime];const ord=rem.length?[rem.shift()]:[];
+  while(rem.length){
+    const last=ord[ord.length-1];
+    let minD=Infinity,ni=0;
+    rem.forEach((s,i)=>{if(s.lat&&s.lng&&last.lat&&last.lng){const d=Math.hypot(s.lat-last.lat,s.lng-last.lng);if(d<minD){minD=d;ni=i;}}});
+    ord.push(rem.splice(ni,1)[0]);
+  }
+  return [...withTime,...ord].map((s,i)=>({...s,order:i+1}));
+}
+
 function saveRoute(){
   const name=document.getElementById('route-name').value.trim();
   if(!name){alert('Poné un nombre a la ruta');return;}
   if(!S.pendingStops.length){alert('Agregá al menos una parada');return;}
-  const optimized=optimizeWithTimeWindows(S.pendingStops);
-  const route={
-    id:Date.now().toString(),name,
-    color:S.routeColor,
-    stops:optimized,
-    date:new Date().toLocaleDateString('es-AR'),
-    status:'pending',
-    createdAt:Date.now()
-  };
+  const route={id:Date.now().toString(),name,color:COLORS[0],stops:optimizeRoute(S.pendingStops),date:new Date().toLocaleDateString('es-AR'),status:'pending',createdAt:Date.now()};
   const routes=db('routes');routes.unshift(route);save('routes',routes);
   const hist=db('history');hist.unshift({...route});save('history',hist);
-  alert('✅ Ruta guardada y optimizada');
-  goHome();
+  alert('✅ Ruta guardada');goHome();
 }
 
-function optimizeWithTimeWindows(stops){
-  // Separate stops with and without time windows
-  const withTime=stops.filter(s=>s.timeFrom).sort((a,b)=>a.timeFrom.localeCompare(b.timeFrom));
-  const noTime=stops.filter(s=>!s.timeFrom);
-  // Nearest neighbor for no-time stops
-  const ordered=optimizeNN([...noTime]);
-  // Merge: insert time-window stops at correct positions
-  const result=[...withTime,...ordered];
-  return result.map((s,i)=>({...s,order:i+1}));
-}
-
-function optimizeNN(stops){
-  if(stops.length<=1)return stops;
-  const rem=[...stops];
-  const ord=[rem.shift()];
-  while(rem.length){
-    const last=ord[ord.length-1];
-    let minD=Infinity,ni=0;
-    rem.forEach((s,i)=>{
-      if(s.lat&&s.lng&&last.lat&&last.lng){
-        const d=Math.hypot(s.lat-last.lat,s.lng-last.lng);
-        if(d<minD){minD=d;ni=i;}
-      }
-    });
-    ord.push(rem.splice(ni,1)[0]);
-  }
-  return ord;
-}
-
-// ══════════════════════════════════════════════════════════════
-// HOME ROUTES
-// ══════════════════════════════════════════════════════════════
 function renderRoutes(){
   const routes=db('routes');
   const el=document.getElementById('routes-list');
   if(!routes.length){
-    el.innerHTML=`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas todavía</div><div class="empty-sub">Creá tu primera ruta abajo</div></div>`;
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas</div><div class="empty-sub">Tocá "+ Nueva" para crear tu primera ruta</div></div>`;
     return;
   }
   el.innerHTML=routes.map((r,i)=>{
@@ -606,18 +568,24 @@ function renderRoutes(){
     const fail=r.stops.filter(s=>s.status==='failed').length;
     const tot=r.stops.length;
     const pct=tot>0?Math.round((del/tot)*100):0;
-    return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
+    const statusBadge=r.status==='completed'?'<span class="badge badge-green">Completada</span>':'<span class="badge badge-blue">Pendiente</span>';
+    return `<div class="card">
       <div class="card-hdr">
-        <div class="card-title">${r.name}</div>
-        <div class="card-date">${r.date}</div>
+        <div>
+          <div class="card-title">${r.name}</div>
+          <div class="card-sub">${r.date} · ${tot} paradas</div>
+        </div>
+        ${statusBadge}
       </div>
-      <div class="card-info">📍 ${tot} paradas · ✅ ${del} · ❌ ${fail}</div>
-      <div class="route-prog">
-        <div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        ${del?`<span class="badge badge-green">✅ ${del} entregadas</span>`:''}
+        ${fail?`<span class="badge badge-red">❌ ${fail} fallidas</span>`:''}
+        ${tot-del-fail>0?`<span class="badge badge-gray">⏳ ${tot-del-fail} pendientes</span>`:''}
       </div>
+      <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:var(--primary)"></div></div></div>
       <div class="card-actions">
-        <button class="btn-sm" style="flex:1" onclick="startRoute(${i})">▶ Iniciar</button>
-        <button class="btn-danger" onclick="deleteRoute(${i})">🗑</button>
+        <button class="btn-primary" style="flex:1" onclick="startRoute(${i})">▶ Iniciar ruta</button>
+        <button class="btn-danger-sm" onclick="deleteRoute(${i})">Eliminar</button>
       </div>
     </div>`;
   }).join('');
@@ -628,14 +596,11 @@ function deleteRoute(i){
   const routes=db('routes');routes.splice(i,1);save('routes',routes);renderRoutes();
 }
 
-// ══════════════════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════════════════
 function startRoute(i){
   const routes=db('routes');
   S.currentRoute=routes[i];
-  S.currentIdx=S.currentRoute.stops.findIndex(s=>s.status==='pending')||0;
-  if(S.currentIdx===-1)S.currentIdx=0;
+  const firstPending=S.currentRoute.stops.findIndex(s=>s.status==='pending');
+  S.currentIdx=firstPending>=0?firstPending:0;
   show('screen-map');
   document.getElementById('nav-route-name').textContent=S.currentRoute.name;
   setTimeout(initNavMap,150);
@@ -645,7 +610,6 @@ function startRoute(i){
 function initNavMap(){
   if(navMap){navMap.remove();navMap=null;nMarkers=[];nPoly=null;}
   const r=S.currentRoute;
-  const color=r.color||'#00e5ff';
   const valid=r.stops.filter(s=>s.lat&&s.lng);
   const center=valid.length?[valid[0].lat,valid[0].lng]:[-34.6037,-58.3816];
   navMap=L.map('nav-map').setView(center,14);
@@ -653,16 +617,14 @@ function initNavMap(){
   r.stops.forEach((s,i)=>{
     if(!s.lat||!s.lng)return;
     const isDel=s.status==='delivered',isFail=s.status==='failed',isCur=i===S.currentIdx;
-    const bg=isDel?'#00e676':isFail?'#ff5252':isCur?color:'#445566';
-    const sz=isCur?36:26;
-    const icon=L.divIcon({className:'',html:`<div style="background:${bg};color:${isCur?'#0a0e1a':'#fff'};width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.6)">${isDel?'✓':isFail?'✕':i+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+    const bg=isDel?'#22c55e':isFail?'#ef4444':isCur?s.color||'#5b5fc7':'#9ca3af';
+    const sz=isCur?36:28;
+    const icon=L.divIcon({className:'',html:`<div style="background:${bg};color:#fff;width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${isDel?'✓':isFail?'✕':i+1}</div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
     const m=L.marker([s.lat,s.lng],{icon}).addTo(navMap);
-    m.bindPopup(`<b>${s.client}</b><br>${s.address}${s.timeFrom?'<br>⏰ '+s.timeFrom+' – '+s.timeTo:''}`);
+    m.bindPopup(`<b>${s.client}</b><br>${s.address}`);
     nMarkers.push(m);
   });
-  if(valid.length>1){
-    nPoly=L.polyline(valid.map(s=>[s.lat,s.lng]),{color,weight:4,opacity:0.65,dashArray:'8 5'}).addTo(navMap);
-  }
+  if(valid.length>1)nPoly=L.polyline(valid.map(s=>[s.lat,s.lng]),{color:'#5b5fc7',weight:3,opacity:0.5,dashArray:'6 4'}).addTo(navMap);
   const cur=r.stops[S.currentIdx];
   if(cur&&cur.lat)navMap.setView([cur.lat,cur.lng],15);
 }
@@ -672,105 +634,75 @@ function updateMapPanel(){
   const tot=r.stops.length;
   const del=r.stops.filter(s=>s.status==='delivered').length;
   const fail=r.stops.filter(s=>s.status==='failed').length;
+  const pend=tot-del-fail;
   const s=r.stops[S.currentIdx];
   document.getElementById('map-counter').textContent=`PARADA ${S.currentIdx+1} DE ${tot}`;
   document.getElementById('map-client').textContent=s?s.client:'¡Ruta completada!';
-  document.getElementById('map-addr').textContent=s?'📍 '+s.address:'';
+  document.getElementById('map-addr').textContent=s?s.address:'';
   document.getElementById('map-time').textContent=s&&s.timeFrom?`⏰ ${s.timeFrom} – ${s.timeTo||'?'}`:'';
   const pct=tot>0?Math.round((del/tot)*100):0;
   document.getElementById('map-progress').style.width=pct+'%';
-  document.getElementById('map-progress').style.background=r.color||'#00e5ff';
-  document.getElementById('map-progress-text').textContent=`${del} entregadas · ${fail} fallidas · ${tot-del-fail} pendientes`;
+  document.getElementById('map-prog-left').textContent=`${pend} pendientes`;
+  document.getElementById('map-prog-right').textContent=`${del}/${tot} entregadas`;
 }
 
 function markStop(status){
   const r=S.currentRoute;if(!r)return;
   const s=r.stops[S.currentIdx];if(!s)return;
   s.status=status;
-  // Save to localStorage
   const routes=db('routes');
   const ri=routes.findIndex(x=>x.id===r.id);
   if(ri!==-1){routes[ri]=r;save('routes',routes);}
-  // SMS notification on delivery
-  if(status==='delivered'&&s.phone){
-    const msg=encodeURIComponent(`Hola ${s.client}! Tu pedido fue entregado en ${s.address}. ¡Gracias!`);
-    window.open(`sms:${s.phone}?body=${msg}`,'_blank');
-  }
   const next=r.stops.findIndex(x=>x.status==='pending');
   if(next===-1){
     r.status='completed';
     if(ri!==-1){routes[ri]=r;save('routes',routes);}
-    alert('🎉 ¡Ruta completada!');
-    goHome();return;
+    alert('🎉 ¡Ruta completada!');goHome();return;
   }
-  S.currentIdx=next;
-  updateMapPanel();
-  initNavMap();
+  S.currentIdx=next;updateMapPanel();initNavMap();
 }
 
-function openWaze(){
-  const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;
-  window.open(`https://waze.com/ul?q=${encodeURIComponent(s.address)}&navigate=yes`,'_blank');
-}
-function openMaps(){
-  const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;
-  const q=s.lat&&s.lng?`${s.lat},${s.lng}`:encodeURIComponent(s.address);
-  window.open(`https://maps.google.com/?q=${q}`,'_blank');
-}
+function openWaze(){const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;window.open(`https://waze.com/ul?q=${encodeURIComponent(s.address)}&navigate=yes`,'_blank');}
+function openMaps(){const s=S.currentRoute&&S.currentRoute.stops[S.currentIdx];if(!s)return;const q=s.lat&&s.lng?`${s.lat},${s.lng}`:encodeURIComponent(s.address);window.open(`https://maps.google.com/?q=${q}`,'_blank');}
 
-function toggleStopList(){
-  const p=document.getElementById('stoplist-panel');
-  const vis=p.style.display!=='none';
-  if(!vis){
-    const r=S.currentRoute;
-    document.getElementById('stoplist-content').innerHTML=r.stops.map((s,i)=>`
-      <div class="stop-item" style="border-left-color:${s.color||r.color||'#00e5ff'};margin-bottom:8px;cursor:pointer" onclick="jumpToStop(${i})">
-        <div class="snum" style="background:${s.status==='delivered'?'#00e676':s.status==='failed'?'#ff5252':s.color||r.color||'#00e5ff'};color:#0a0e1a">${s.status==='delivered'?'✓':s.status==='failed'?'✕':i+1}</div>
-        <div class="sinfo">
-          <div class="saddr">${s.address.slice(0,45)}</div>
-          <div class="sclient">👤 ${s.client}</div>
-          ${s.timeFrom?`<div class="stime">⏰ ${s.timeFrom} – ${s.timeTo}</div>`:''}
-          <span class="stop-status status-${s.status}">${s.status==='delivered'?'Entregado':s.status==='failed'?'No entregado':'Pendiente'}</span>
-        </div>
-      </div>`).join('');
-  }
-  p.style.display=vis?'none':'block';
+function showStopList(){
+  const r=S.currentRoute;
+  document.getElementById('stoplist-content').innerHTML=r.stops.map((s,i)=>`
+    <div class="stop-item" style="cursor:pointer" onclick="jumpToStop(${i});hideStopList()">
+      <div class="snum" style="background:${s.status==='delivered'?'#22c55e':s.status==='failed'?'#ef4444':s.color||'#5b5fc7'}">${s.status==='delivered'?'✓':s.status==='failed'?'✕':i+1}</div>
+      <div class="sinfo">
+        <div class="saddr">${s.address.slice(0,42)}</div>
+        <div class="sclient">${s.client}</div>
+        ${s.timeFrom?`<div class="stime">⏰ ${s.timeFrom} – ${s.timeTo}</div>`:''}
+        <span class="sstatus sstatus-${s.status}">${s.status==='delivered'?'✅ Entregado':s.status==='failed'?'❌ No entregado':'⏳ Pendiente'}</span>
+      </div>
+    </div>`).join('');
+  document.getElementById('stoplist-overlay').classList.add('active');
 }
+function hideStopList(){document.getElementById('stoplist-overlay').classList.remove('active');}
+function jumpToStop(i){S.currentIdx=i;updateMapPanel();const s=S.currentRoute.stops[i];if(s&&s.lat&&navMap)navMap.setView([s.lat,s.lng],15);}
 
-function jumpToStop(i){
-  S.currentIdx=i;
-  document.getElementById('stoplist-panel').style.display='none';
-  updateMapPanel();
-  const s=S.currentRoute.stops[i];
-  if(s&&s.lat&&navMap)navMap.setView([s.lat,s.lng],15);
-}
-
-// ══════════════════════════════════════════════════════════════
-// HISTORY
-// ══════════════════════════════════════════════════════════════
 function renderHistory(){
   const hist=db('history');
   const el=document.getElementById('history-list');
-  if(!hist.length){
-    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial</div></div>`;
-    return;
-  }
+  if(!hist.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial</div></div>`;return;}
   el.innerHTML=hist.map(r=>{
     const del=r.stops.filter(s=>s.status==='delivered').length;
     const fail=r.stops.filter(s=>s.status==='failed').length;
     const tot=r.stops.length;
     const pct=tot>0?Math.round((del/tot)*100):0;
-    return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
-      <div class="card-hdr"><div class="card-title">${r.name}</div><div class="card-date">${r.date}</div></div>
-      <div class="card-info">📍 ${tot} paradas · ✅ ${del} · ❌ ${fail} · 📊 ${pct}%</div>
-      <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div></div>
+    return `<div class="card">
+      <div class="card-hdr"><div class="card-title">${r.name}</div><span style="font-size:12px;color:var(--text2)">${r.date}</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <span class="badge badge-green">✅ ${del}</span>
+        <span class="badge badge-red">❌ ${fail}</span>
+        <span class="badge badge-gray">📊 ${pct}%</span>
+      </div>
+      <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:var(--primary)"></div></div></div>
     </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════════════════════════
-// DISPATCHER
-// ══════════════════════════════════════════════════════════════
 function renderDispatcher(){
   const tab=S.dispTab;
   const el=document.getElementById('dispatcher-content');
@@ -782,19 +714,13 @@ function renderDispatcher(){
     const del=allStops.filter(s=>s.status==='delivered').length;
     const fail=allStops.filter(s=>s.status==='failed').length;
     const pend=allStops.filter(s=>s.status==='pending').length;
-    el.innerHTML=`
-      <div style="padding:16px">
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${routes.length}</div><div class="stat-lbl">Rutas totales</div></div>
-          <div class="stat-card"><div class="stat-num" style="color:var(--success)">${del}</div><div class="stat-lbl">Entregados</div></div>
-          <div class="stat-card"><div class="stat-num" style="color:var(--danger)">${fail}</div><div class="stat-lbl">No entregados</div></div>
-          <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${pend}</div><div class="stat-lbl">Pendientes</div></div>
-        </div>
-        <div class="stat-card" style="margin-bottom:12px">
-          <div class="stat-num" style="color:var(--accent)">${allStops.length>0?Math.round((del/allStops.length)*100):0}%</div>
-          <div class="stat-lbl">Tasa de entrega</div>
-        </div>
-      </div>`;
+    el.innerHTML=`<div style="padding:16px"><div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${routes.length}</div><div class="stat-lbl">Rutas totales</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--success)">${del}</div><div class="stat-lbl">Entregados</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--danger)">${fail}</div><div class="stat-lbl">No entregados</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${pend}</div><div class="stat-lbl">Pendientes</div></div>
+    </div>
+    <div class="stat-card"><div class="stat-num">${allStops.length>0?Math.round((del/allStops.length)*100):0}%</div><div class="stat-lbl">Tasa de entrega</div></div></div>`;
     return;
   }
   if(tab==='drivers'){
@@ -806,37 +732,34 @@ function renderDispatcher(){
       const route=routes.find(r=>r.id===d.currentRoute);
       return `<div class="card">
         <div class="card-hdr">
-          <div class="card-title">🚚 ${d.name}</div>
+          <div><div class="card-title">${d.name}</div>${route?`<div class="card-sub">📌 ${route.name}</div>`:''}</div>
           <span class="badge ${d.status==='available'?'badge-green':'badge-yellow'}">${d.status==='available'?'Disponible':'En ruta'}</span>
         </div>
-        ${route?`<div class="card-info">📌 Ruta activa: ${route.name}</div>`:''}
-        ${d.status==='available'&&routes.length?`
-          <div style="margin-top:10px">
-            <div class="sec-title" style="margin-bottom:8px">Asignar ruta:</div>
-            ${routes.filter(r=>r.status!=='completed').slice(0,3).map(r=>`
-              <button onclick="assignRoute(${i},'${r.id}')" style="width:100%;text-align:left;background:var(--bg3);border:none;color:var(--accent);border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;font-size:13px;border-left:3px solid ${r.color||'var(--accent)'}">📍 ${r.name}</button>
-            `).join('')}
-          </div>`:''}
+        ${d.status==='available'&&routes.length?`<div style="margin-top:8px">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500;">Asignar ruta:</div>
+          ${routes.filter(r=>r.status!=='completed').slice(0,4).map(r=>`
+            <button onclick="assignRoute(${i},'${r.id}')" style="width:100%;text-align:left;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:500">${r.name}</button>
+          `).join('')}
+        </div>`:''}
       </div>`;
     }).join('');
   } else {
     bar.style.display='none';
     const routes=db('routes');
     const drivers=db('drivers');
-    if(!routes.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas</div></div>`;return;}
-    el.innerHTML=`<button class="btn-main" style="margin:16px 16px 0" onclick="goBuilder()">+ Nueva Ruta</button>`+
-    routes.map(r=>{
+    el.innerHTML=`<div style="padding:16px 16px 0"><button class="btn-main" onclick="goBuilder()">+ Crear nueva ruta</button></div>`+
+    (routes.length?routes.map(r=>{
       const drv=drivers.find(d=>d.currentRoute===r.id);
       const del=r.stops.filter(s=>s.status==='delivered').length;
       const tot=r.stops.length;
       const pct=tot>0?Math.round((del/tot)*100):0;
-      return `<div class="card" style="border-left-color:${r.color||'#00e5ff'}">
-        <div class="card-hdr"><div class="card-title">${r.name}</div><div class="card-date">${r.date}</div></div>
-        <div class="card-info">📍 ${tot} paradas · 👤 ${drv?drv.name:'Sin asignar'}</div>
-        <div class="route-prog"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:${r.color||'#00e5ff'}"></div></div></div>
-        <div style="font-size:11px;color:var(--text2);text-align:right;font-family:var(--mono);margin-top:2px">${del}/${tot}</div>
+      return `<div class="card" style="margin:10px 16px 0">
+        <div class="card-hdr"><div class="card-title">${r.name}</div><span class="badge badge-gray">${r.date}</span></div>
+        <div class="card-sub">📍 ${tot} paradas · 👤 ${drv?drv.name:'Sin asignar'}</div>
+        <div class="route-prog" style="margin-top:8px"><div class="route-prog-bar"><div class="route-prog-fill" style="width:${pct}%;background:var(--primary)"></div></div></div>
+        <div style="font-size:11px;color:var(--text2);text-align:right;margin-top:2px">${del}/${tot}</div>
       </div>`;
-    }).join('');
+    }).join(''):`<div class="empty"><div class="empty-icon">🗺️</div><div class="empty-title">Sin rutas</div></div>`);
   }
 }
 
@@ -844,28 +767,22 @@ function addDriver(){
   const name=document.getElementById('driver-name').value.trim();if(!name)return;
   const drivers=db('drivers');
   drivers.push({id:Date.now().toString(),name,status:'available',currentRoute:null});
-  save('drivers',drivers);
-  document.getElementById('driver-name').value='';
-  renderDispatcher();
+  save('drivers',drivers);document.getElementById('driver-name').value='';renderDispatcher();
 }
-
 function assignRoute(di,rid){
-  const drivers=db('drivers');
-  drivers[di].status='on-route';drivers[di].currentRoute=rid;
+  const drivers=db('drivers');drivers[di].status='on-route';drivers[di].currentRoute=rid;
   save('drivers',drivers);alert('✅ Ruta asignada');renderDispatcher();
 }
-
-function switchTab(tab){
-  S.dispTab=tab;
-  ['drivers','droutes','stats'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+function switchTab(t){
+  S.dispTab=t;
+  ['drivers','droutes','stats'].forEach(id=>{
+    const el=document.getElementById('tab-'+id);
+    el.style.borderBottomColor=t===id?'var(--primary)':'transparent';
+    el.style.color=t===id?'var(--primary)':'var(--text2)';
   });
   renderDispatcher();
 }
 
-// ══════════════════════════════════════════════════════════════
-// QR SCANNER (MercadoLibre)
-// ══════════════════════════════════════════════════════════════
 async function openQR(){
   document.getElementById('qr-overlay').classList.add('active');
   try{
@@ -873,103 +790,55 @@ async function openQR(){
     const video=document.getElementById('qr-video');
     video.srcObject=qrStream;
     qrInterval=setInterval(()=>scanQRFrame(video),400);
-  }catch(e){
-    alert('No se pudo acceder a la cámara');
-    closeQR();
-  }
+  }catch(e){alert('No se pudo acceder a la cámara.\nAsegurate de abrir la app desde:\nhttps://luki87i.github.io/spokeclone/');closeQR();}
 }
-
 function scanQRFrame(video){
   if(video.readyState!==video.HAVE_ENOUGH_DATA)return;
-  const canvas=document.createElement('canvas');
-  canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  const ctx=canvas.getContext('2d');
-  ctx.drawImage(video,0,0);
-  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;
+  c.getContext('2d').drawImage(video,0,0);
+  const img=c.getContext('2d').getImageData(0,0,c.width,c.height);
   const code=jsQR(img.data,img.width,img.height);
-  if(code){
-    clearInterval(qrInterval);
-    processQRCode(code.data);
-    closeQR();
-  }
+  if(code){clearInterval(qrInterval);processQR(code.data);closeQR();}
 }
-
-function processQRCode(data){
-  // MercadoLibre QR typically contains tracking info and address
-  // Try to extract address from QR data
-  let addr='';let client='';
-  // Common ML QR format parsing
-  try{
-    if(data.includes('|')){
-      const parts=data.split('|');
-      addr=parts.find(p=>p.includes('Calle')||p.includes('Av.')||p.includes('Blvd')||p.match(/\d{3,}/))?.trim()||parts[0];
-      client=parts.find(p=>p.length>3&&!p.match(/^\d+$/))?.trim()||'Cliente ML';
-    } else if(data.startsWith('http')){
-      addr=data;client='MercadoLibre';
-    } else {
-      addr=data;client='MercadoLibre';
-    }
-  }catch(e){addr=data;client='MercadoLibre';}
+function processQR(data){
+  let addr=data,client='MercadoLibre';
+  if(data.includes('|')){const p=data.split('|');addr=p[0]||data;client=p[1]||'MercadoLibre';}
   document.getElementById('stop-addr').value=addr;
   document.getElementById('stop-client').value=client;
-  // Trigger autocomplete
   onAddrInput(addr);
-  alert(`✅ QR escaneado\nDirección: ${addr}\nVerificá y completá los datos si es necesario.`);
+  alert(`✅ QR escaneado\nVerificá la dirección y completá los datos.`);
 }
-
 function closeQR(){
   document.getElementById('qr-overlay').classList.remove('active');
   clearInterval(qrInterval);
-  if(qrStream)qrStream.getTracks().forEach(t=>t.stop());
-  qrStream=null;
+  if(qrStream)qrStream.getTracks().forEach(t=>t.stop());qrStream=null;
 }
 
-// ══════════════════════════════════════════════════════════════
-// PHOTO CAPTURE
-// ══════════════════════════════════════════════════════════════
-async function openPhotoForStop(){
-  S.photoTarget='stop';
-  await startCamera();
-}
-async function openPhotoNav(){
-  S.photoTarget='nav';
-  await startCamera();
-}
-
-async function startCamera(){
+async function openPhotoForStop(){S.photoTarget='stop';await startCam();}
+async function openPhotoNav(){S.photoTarget='nav';await startCam();}
+async function startCam(){
   document.getElementById('photo-modal').classList.add('active');
   try{
     photoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
     document.getElementById('photo-video').srcObject=photoStream;
-  }catch(e){alert('No se pudo acceder a la cámara');closePhoto();}
+  }catch(e){alert('No se pudo acceder a la cámara.\nAsegurate de abrir la app desde:\nhttps://luki87i.github.io/spokeclone/');closePhoto();}
 }
-
 function takePhoto(){
   const video=document.getElementById('photo-video');
   const canvas=document.getElementById('photo-canvas');
   canvas.width=video.videoWidth;canvas.height=video.videoHeight;
   canvas.getContext('2d').drawImage(video,0,0);
   const dataUrl=canvas.toDataURL('image/jpeg',0.7);
-  if(S.photoTarget==='stop'){
-    S.pendingPhoto=dataUrl;
-    alert('📸 Foto guardada. Se agregará a la próxima parada.');
-  } else if(S.photoTarget==='nav'){
+  if(S.photoTarget==='stop'){S.pendingPhoto=dataUrl;alert('📸 Foto guardada. Se agregará a la próxima parada.');}
+  else if(S.photoTarget==='nav'){
     const r=S.currentRoute;
-    if(r){
-      r.stops[S.currentIdx].photo=dataUrl;
-      const routes=db('routes');
-      const ri=routes.findIndex(x=>x.id===r.id);
-      if(ri!==-1){routes[ri]=r;save('routes',routes);}
-      alert('📸 Foto guardada para esta entrega.');
-    }
+    if(r){r.stops[S.currentIdx].photo=dataUrl;const routes=db('routes');const ri=routes.findIndex(x=>x.id===r.id);if(ri!==-1){routes[ri]=r;save('routes',routes);}alert('📸 Foto de entrega guardada.');}
   }
   closePhoto();
 }
-
 function closePhoto(){
   document.getElementById('photo-modal').classList.remove('active');
-  if(photoStream)photoStream.getTracks().forEach(t=>t.stop());
-  photoStream=null;
+  if(photoStream)photoStream.getTracks().forEach(t=>t.stop());photoStream=null;
 }
 </script>
 </body>
